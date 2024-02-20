@@ -20,8 +20,8 @@ void ui_mainScreen_screen_init(void)
 
     /* icons */
     ui_wifiIcon = lv_label_create(ui_iconContainer);
-    lv_label_set_text(ui_wifiIcon, LV_SYMBOL_WIFI);
-    lv_obj_align(ui_wifiIcon, LV_ALIGN_RIGHT_MID, -30, 0);
+    lv_label_set_text(ui_wifiIcon, "");
+    lv_obj_align(ui_wifiIcon, LV_ALIGN_TOP_LEFT, 0, 0);
     lv_obj_add_flag(ui_wifiIcon, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_set_style_text_font(ui_wifiIcon, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
 
@@ -32,11 +32,11 @@ void ui_mainScreen_screen_init(void)
     lv_obj_set_style_text_font(ui_settingsIcon, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     /* main screen content */
-    ui_label1 = lv_label_create(ui_mainScreen);
-    lv_label_set_text(ui_label1, "Hello, this is lvgl v8.3.6 running on with esp32.");
-    lv_label_set_long_mode(ui_label1, LV_LABEL_LONG_SCROLL_CIRCULAR);
-    lv_obj_center(ui_label1);
-    lv_obj_set_width(ui_label1, 300);
+    // ui_label1 = lv_label_create(ui_mainScreen);
+    // lv_label_set_text(ui_label1, "Hello, this is lvgl v8.3.6 running on with esp32.");
+    // lv_label_set_long_mode(ui_label1, LV_LABEL_LONG_SCROLL_CIRCULAR);
+    // lv_obj_center(ui_label1);
+    // lv_obj_set_width(ui_label1, 300);
 
     /* bottom container */
     ui_bottomContainer = lv_obj_create(ui_mainScreen);

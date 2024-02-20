@@ -11,7 +11,7 @@ extern "C"
 
 #include "ui_helpers.h"
 #include "ui_events.h"
-
+#include "system_status.h"
     // SCREEN: ui_mainScreen
 
     extern void ui_mainScreen_screen_init(void);
@@ -32,13 +32,19 @@ extern "C"
 
     /* events */
     void settings_icon_event_cb(lv_event_t *event);
-    void wifi_icon_event_cb(lv_event_t *event);
+    // void wifi_icon_event_cb(lv_event_t *event);
 
     /* others */
     extern lv_obj_t *ui____initial_actions0;
 
     // SCREEN: ui_setupScreen
+
+    /* event cb */
+    void ui_home_btn_cb(lv_event_t *event);
+
     extern lv_obj_t *tabview;
+
+    /* wifi tab */
     extern void ui_setupScreen_screen_init(void);
     extern lv_obj_t *ui_setupScreen;
     extern lv_obj_t *ui_wifi_ssid_label;
@@ -58,9 +64,28 @@ extern "C"
     void ui_wifi_pass_ta_event_cb(lv_event_t *event);
     void ui_wifi_conn_event_cb(lv_event_t *event);
 
-    /*glob*/
-    void
-    create_notif_panel(const char *title, const char *msg, bool _spin);
+    ////////////////////////////////////////////////////////////// RFID TAB /////////////////////////////////////////////////////////
+    extern lv_obj_t *ui_bana_dd;
+    extern lv_obj_t *ui_power_txtarea;
+    extern lv_obj_t *ui_scantime_txtarea;
+    extern lv_obj_t *ui_beepon_switch;
+    extern lv_obj_t *ui_reader_info_write;
+    extern lv_obj_t *ui_device_id_labelx;
+    extern lv_obj_t *ui_version_labelx;
+    extern lv_obj_t *ui_protocol_labelx;
+    extern lv_obj_t *ui_antenna_labelx;
+    extern lv_obj_t *ui_maxf_labelx;
+    extern lv_obj_t *ui_minf_labelx;
+    extern lv_obj_t *ui_baud_dd;
+
+    /* event cb */
+    void tabview_slider_cb(lv_event_t *event);
+    void ui_reader_info_write_cb(lv_event_t *event);
+    void ui_reader_power_txtarea_cb(lv_event_t *event);
+    void ui_reader_scantime_txtarea_cb(lv_event_t *event);
+
+    ////////////////////////////////////////////////////////////////////// GLOBAL /////////////////////////////////////////////////////////
+    void create_notif_panel(const char *title, const char *msg, bool _spin);
     void notif_msg_update(const char *msg);
     void notif_panel_del();
 
@@ -71,6 +96,8 @@ extern "C"
     extern lv_obj_t *notif_cross_icon;
 
     extern void kb_event_cb(lv_event_t *event);
+    void make_kb();
+    void kb_del();
     extern lv_obj_t *kb;
 
     void

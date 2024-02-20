@@ -11,8 +11,17 @@
         "tp_i2c.h": "c",
         "ui_helpers.h": "c",
         "shared_task.h": "c",
-        "wifi_app.h": "c"
+        "wifi_app.h": "c",
+        "nvs_flash.h": "c",
+        "driver.h": "c",
+        "vector": "cpp",
+        "algorithm": "cpp",
+        "*.inc": "c",
+        "esp_timer.h": "c",
+        "event_groups.h": "c",
+        "string.h": "c"
     },
-    "idf.portWin": "COM9",
-    "idf.flashType": "UART"
+    "idf.portWin": "COM15",
+    "idf.flashType": "UART",
+    "idf.flashBaudRate": "921600"
 }

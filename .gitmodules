@@ -1,0 +1,5 @@
+
+[submodule "components/j4210u-driver"]
+	path = components/j4210u-driver
+	url = https://jence:KDtWNnSCdbtatbVCB9d2@bitbucket.org/jence/j4210u-driver.git
+	branch = esp-idf

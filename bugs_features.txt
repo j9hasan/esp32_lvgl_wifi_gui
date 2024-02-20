@@ -1,0 +1,19 @@
+-----------------------------------------------Known BUGS-----------------------------------------------
+        DESC                                                            STATUS
+--------------------------------------------------------------------------------------------------------
+1.wifi not connected ERR                                                fixed
+2.notif panel closse btn click crash
+
+
+
+
+
+----------------------------------------------FEATURE TO IMPROVE----------------------------------------
+        DESC                                                            STATUS
+--------------------------------------------------------------------------------------------------------
+1.move wifi icon to left                                                 done
+3.make inactive btn color brown.                                           
+4.PLACE ESP ERR CODE on notification                                       
+5.Implement roller on rfid tab-power, scan time.
+6.
+

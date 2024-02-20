@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "helper_func.h"
+#include <cstdio>
+#include <cstdlib>
 
 /*copies ssid and pass to wifi_config*/
 char *u8cpy(uint8_t *dst, const uint8_t *src)
@@ -9,7 +11,21 @@ char *u8cpy(uint8_t *dst, const uint8_t *src)
     return (char *)strcpy((char *)dst, (const char *)src);
 }
 
-/*no use*/
+unsigned char convertStringToUnsignedChar(const char *str)
+{
+    unsigned char result = 0;
+    int scanned = std::sscanf(str, "%hhu", &result);
+
+    // Check if the conversion was successful
+    if (scanned != 1)
+    {
+        // Handle the error or provide a default value
+        result = 0; // Default value in case of an error
+    }
+
+    return result;
+}
+
 const char *unsignedCharToString(unsigned char value)
 {
     static char buffer[5]; // Adjust the size based on your requirement

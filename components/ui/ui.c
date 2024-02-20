@@ -6,7 +6,7 @@
 #include "wifi_app.h"
 
 ///////////////////// VARIABLES ////////////////////
-
+/* only global objects are here */
 // SCREEN: ui_mainScreen
 void ui_mainScreen_screen_init(void);
 lv_obj_t *ui_mainScreen;
@@ -25,6 +25,7 @@ lv_obj_t *ui____initial_actions0;
 // SCREEN: ui_setupScreen
 void ui_setupScreen_screen_init(void);
 lv_obj_t *tabview;
+/* wifi tab */
 lv_obj_t *ui_setupScreen;
 lv_obj_t *ui_wifi_ssid_label;
 lv_obj_t *ui_wifi_ssid_dd;
@@ -38,7 +39,21 @@ lv_obj_t *ui_wifi_e_conn_btn;
 lv_obj_t *ui_wifi_e_conn_btn_label;
 lv_obj_t *ui_wifi_tab_label;
 
-/*GLOB*/
+/* rfid tab */
+lv_obj_t *ui_bana_dd;
+lv_obj_t *ui_baud_dd;
+lv_obj_t *ui_power_txtarea;
+lv_obj_t *ui_scantime_txtarea;
+lv_obj_t *ui_beepon_switch;
+lv_obj_t *ui_reader_info_write;
+lv_obj_t *ui_device_id_labelx;
+lv_obj_t *ui_version_labelx;
+lv_obj_t *ui_protocol_labelx;
+lv_obj_t *ui_antenna_labelx;
+lv_obj_t *ui_maxf_labelx;
+lv_obj_t *ui_minf_labelx;
+
+// GLOB: resources
 lv_obj_t *kb;
 lv_obj_t *notif_panel;
 lv_obj_t *notif_panel_title;
@@ -46,7 +61,7 @@ lv_obj_t *notif_close_btn;
 lv_obj_t *notif_msg;
 lv_obj_t *notif_cross_icon;
 bool spin_flag = false;
-///////////////////// TEST LVGL SETTINGS ////////////////////
+
 #if LV_COLOR_DEPTH != 16
 #error "LV_COLOR_DEPTH should be 16bit to match SquareLine Studio's settings"
 #endif
@@ -54,31 +69,30 @@ bool spin_flag = false;
 #error "LV_COLOR_16_SWAP should be 1 to match SquareLine Studio's settings"
 #endif
 
-///////////////////// ANIMATIONS ////////////////////
+///////////////////////////////////////////////////// MAIN SCREEN ////////////////////////////////////////////////
 
-///////////////////// FUNCTIONS ////////////////////
+/* go to setup screen */
 void settings_icon_event_cb(lv_event_t *event)
 {
-    ESP_LOGI("settings_icon", "settings icon clicked");
-    lv_scr_load_anim(ui_setupScreen, LV_SCR_LOAD_ANIM_MOVE_LEFT, 200, 0, true);
+    lv_scr_load_anim(ui_setupScreen, LV_SCR_LOAD_ANIM_MOVE_LEFT, 200, 0, false);
 }
 
-void wifi_icon_event_cb(lv_event_t *event)
-{
-    ESP_LOGI("wifi_icon", "wifi icon clicked");
-}
+/* wifi icon set/del */
+// void wifi_icon_event_cb(lv_event_t *event)
+// {
+//     ESP_LOGI("wifi_icon", "wifi icon clicked");
+// }
 
-/* setup screen */
-// wifi tab
+///////////////////////////////////////////////////// SETUP SCREEN //////////////////////////////////////////////
+////////////WIFI TAB//////////////
+/* kb set to pass ta */
 void ui_wifi_pass_ta_event_cb(lv_event_t *event)
 {
-    ESP_LOGI("pass ta", "pass ta clicked");
-    kb = lv_keyboard_create(lv_scr_act());
-    lv_keyboard_set_textarea(kb, ui_wifi_pass_ta);
-    lv_keyboard_set_popovers(kb, true);
-    lv_obj_add_event_cb(kb, kb_event_cb, LV_EVENT_ALL, NULL); /*Settings event callback*/
+    ESP_LOGI("PASS TA", "pass ta clicked");
+    make_kb(ui_wifi_pass_ta);
 }
 
+/* initiate wifi scan task */
 void ui_wifi_scan_event_cb(lv_event_t *event)
 {
     if (wifi_scan_task_handle == NULL)
@@ -92,12 +106,14 @@ void ui_wifi_scan_event_cb(lv_event_t *event)
     }
     else
     {
-        printf("wifi scan task already running");
+        ESP_LOGI("WIFI SCAN CB", "wifi scan task already running");
     }
 }
 
+/* initiate wifi connection task */
 void ui_wifi_conn_event_cb(lv_event_t *event)
 {
+    kb_del();
     if (wifi_scan_task_handle == NULL)
     {
         xTaskCreatePinnedToCore(wifi_conn_task,
@@ -109,11 +125,98 @@ void ui_wifi_conn_event_cb(lv_event_t *event)
     }
     else
     {
-        printf("wifi conn task already running");
+        ESP_LOGI("WIFI CONN CB", "wifi conn task already running");
+    }
+}
+/////////////////////////////////////////////////////////////RFID TAB////////////////////////////////////////////////////////
+
+void ui_reader_power_txtarea_cb(lv_event_t *event)
+{
+    lv_event_code_t event_code = lv_event_get_code(event);
+
+    if (event_code == LV_EVENT_CLICKED)
+    {
+        make_kb(ui_power_txtarea);
+    }
+}
+void ui_reader_scantime_txtarea_cb(lv_event_t *event)
+{
+    lv_event_code_t event_code = lv_event_get_code(event);
+
+    if (event_code == LV_EVENT_CLICKED)
+    {
+        make_kb(ui_scantime_txtarea);
+    }
+}
+void ui_reader_info_write_cb(lv_event_t *event)
+{
+    lv_event_code_t event_code = lv_event_get_code(event);
+
+    if (event_code == LV_EVENT_CLICKED)
+    {
+        if (READER_WRITE_TASK_HANDLE == NULL)
+        {
+            if (system_status.reader)
+            {
+                xTaskCreatePinnedToCore(reader_info_write, "reader_info_write",
+                                        RFID_TASK_STACK_SIZE, NULL,
+                                        RFID_TASK_PRIORITY,
+                                        &READER_WRITE_TASK_HANDLE,
+                                        RFID_TASK_CORE);
+                ESP_LOGI("reader write", "writing reader info.");
+            }
+            else
+            {
+                ESP_LOGI("reader write", "reader disconnected.");
+            }
+        }
+        else
+        {
+            ESP_LOGI("reader write", "reader write task already running.");
+        }
+    }
+}
+void tabview_slider_cb(lv_event_t *event)
+{
+    lv_event_code_t event_code = lv_event_get_code(event);
+
+    if (event_code == LV_EVENT_VALUE_CHANGED)
+    {
+        // ESP_LOGI("tabview_slider_cb", "tab: %d", lv_tabview_get_tab_act(tabview));
+        if (lv_tabview_get_tab_act(tabview) == 1)
+        {
+            if (RFID_TASK_HANDLE == NULL) /*if (RFID_TASK_HANDLE == NULL && reader status ok )*/
+            {
+                if (system_status.reader_data_fetched == false && system_status.reader)
+                {
+                    xTaskCreatePinnedToCore(reader_info_fetching_task, "reader_info_fetching_task",
+                                            RFID_TASK_STACK_SIZE, NULL,
+                                            RFID_TASK_PRIORITY,
+                                            &RFID_TASK_HANDLE,
+                                            RFID_TASK_CORE);
+                    ESP_LOGI("tabview_slider_cb", "start fetching reader info.");
+                }
+                else
+                {
+                    ESP_LOGI("tabview_slider_cb", "reader info already fetched.");
+                }
+            }
+            else
+            {
+                ESP_LOGI("tabview_slider_cb", "rfid info task already running");
+            }
+        }
     }
 }
 
-///////////////////// SCREENS ////////////////////
+/* go to home */
+void ui_home_btn_cb(lv_event_t *event)
+{
+    // ui_mainScreen_screen_init();
+    lv_scr_load_anim(ui_mainScreen, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 200, 0, false);
+}
+
+////////////////////////////////////////////////////////// SCREENS ////////////////////////////////////////////////////////////
 
 void ui_init(void)
 {
@@ -127,11 +230,34 @@ void ui_init(void)
     lv_disp_load_scr(ui_mainScreen);
 }
 
-/* glob */
+////////////////////////////////////////////////////// GLOB METHODS AND RESOURCES////////////////////////////////////////////////
+void make_kb(lv_obj_t *obj)
+{
+    if (lv_obj_is_valid(kb))
+    {
+        kb_del();
+    }
+    else
+    {
+        kb = lv_keyboard_create(lv_scr_act());
+        lv_keyboard_set_textarea(kb, obj);
+        lv_keyboard_set_popovers(kb, true);
+        lv_obj_add_event_cb(kb, kb_event_cb, LV_EVENT_ALL, NULL);
+    }
+}
 void kb_event_cb(lv_event_t *event)
 {
     lv_event_code_t event_code = lv_event_get_code(event);
     if (event_code == LV_EVENT_CANCEL)
+    {
+        lv_obj_del(kb);
+        kb = NULL;
+    }
+}
+
+void kb_del()
+{
+    if (lv_obj_is_valid(kb))
     {
         lv_obj_del(kb);
         kb = NULL;
@@ -147,13 +273,8 @@ void notif_panel_close_event_cb(lv_event_t *event)
         if (lv_obj_is_valid(notif_panel))
         {
             ESP_LOGI("PANEL DEL CB", "PANEL NOT NULL");
-            // if (xSemaphoreTake(xGuiSemaphore, 100 / portMAX_DELAY))
-            // {
-            ESP_LOGI("PANEL DEL CB", "MUTEX GOT");
             lv_obj_del_async(notif_panel);
             notif_panel = NULL;
-            //     xSemaphoreGive(xGuiSemaphore);
-            // }
         }
         else
         {
@@ -161,24 +282,19 @@ void notif_panel_close_event_cb(lv_event_t *event)
         }
     }
 }
-
 void notif_panel_del()
 {
 
     if (lv_obj_is_valid(notif_panel))
     {
         ESP_LOGI("PANEL DEL", "CALLED");
-        // if (pdTRUE == xSemaphoreTake(xGuiSemaphore, portMAX_DELAY))
-        // {
-        ESP_LOGI("PANEL DEL", "MUTEX GOT");
-        lv_obj_del(notif_panel);
+        lv_obj_del_async(notif_panel);
         notif_panel = NULL;
-        //     xSemaphoreGive(xGuiSemaphore);
-        // }
     }
+
     else
     {
-        ESP_LOGI("PANEL DEL", "PANEL NOT NULL");
+        ESP_LOGI("PANEL DEL", "PANEL IS NULL");
     }
 }
 
@@ -242,9 +358,3 @@ void notif_msg_update(const char *msg)
         lv_label_set_text(notif_msg, msg);
     }
 }
-
-/*-----------------------------------------------Known BUGS-------------------------------------------*/
-/*BUG: crash if click notif close while scanning -know reason*/
-
-/*-----------------------------------------------ISSUES-------------------------------------------*/
-/*cant change flag on other file.*/

@@ -14,7 +14,7 @@
 #include "esp_sntp.h"
 
 /* DEFINES */
-#define WIFI_MAX_RETRY 2
+#define WIFI_MAX_RETRY 0
 #define DEFAULT_SCAN_LIST_SIZE 7
 #define WIFI_SSID_BUFFER_SIZE 32
 
@@ -34,9 +34,16 @@ extern "C"
     /* FUNCTION PROTOTYPES FOR USING IN C FILE */
     void wifi_scan_task(void *pvParameters);
     void wifi_conn_task(void *pvParameters);
-    void wifi_init_sta(void);
+    esp_err_t wifi_init_sta(void);
     void Set_SystemTime_SNTP();
     void Get_current_date_time();
+
+    /* extern variables */
+
+    extern EventGroupHandle_t systemStatusEventGroup;
+    extern const int WIFI_CONNECTED_BIT;
+    extern const int WIFI_FAIL_BIT;
+
 #ifdef __cplusplus
 }
 #endif

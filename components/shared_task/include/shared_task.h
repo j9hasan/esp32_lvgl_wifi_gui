@@ -7,16 +7,23 @@
 #include "freertos/event_groups.h"
 #include "esp_system.h"
 #include "esp_timer.h"
-#include <esp_log.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+// uhf driver
+
+////////////////////////////////////////TASK PARAMETERS////////////////////////////////////////
 
 /* gui task parameters */
 #define GUI_TASK_STACK_SIZE 1024 * 5
 #define GUI_TASK_PRIORITY 2
 #define GUI_TASK_CORE 1
+
+/* rfid task parameters */
+#define RFID_TASK_STACK_SIZE 1024 * 5
+#define RFID_TASK_PRIORITY 2
+#define RFID_TASK_CORE 1
 
 /*wifi task parameters*/
 #define WIFI_TASK_PRIORITY 2
@@ -44,6 +51,11 @@ extern "C"
 {
 #endif
 
+    /* tasks */
+    void reader_info_fetching_task(void *pVparameters);
+    void reader_info_write(void *pVparameters);
+    void update_rfid_tab();
+
     /*gui mutex*/
     extern SemaphoreHandle_t xGuiSemaphore;
 
@@ -59,7 +71,9 @@ extern "C"
         get_date_time_task_handle,
         mem_task_handle,
         img_slider_task_handle,
-        GUI_TASK_HANDLE;
+        GUI_TASK_HANDLE,
+        RFID_TASK_HANDLE,
+        READER_WRITE_TASK_HANDLE;
 
     extern uint16_t row_, col_;
 

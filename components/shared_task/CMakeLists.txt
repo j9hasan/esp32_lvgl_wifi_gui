@@ -1,4 +1,4 @@
 
-idf_component_register(SRCS "shared_task.c"
+idf_component_register(SRCS "shared_task.cpp"
                     INCLUDE_DIRS "include"
-                    REQUIRES " ")
+                    REQUIRES ui inventory helper_func j4210u-driver)

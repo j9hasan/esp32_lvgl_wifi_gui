@@ -6,5 +6,5 @@ SET(SOURCES
     ui_helpers.c)
 idf_component_register(SRCS ${SOURCES}
                        INCLUDE_DIRS .
-                       REQUIRES lvgl shared_task wifi_app
+                       REQUIRES lvgl shared_task wifi_app system_status
                        )
