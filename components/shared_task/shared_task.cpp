@@ -5,25 +5,20 @@
 #include "helper_func.h"
 #include "driver.h"
 
+static const char *TAG = "shared task";
+
 TaskHandle_t RFID_TASK_HANDLE = NULL;
 void reader_info_fetching_task(void *pVparameters)
 {
     create_notif_panel("READER", "Fetching data, please wait", true);
     vTaskDelay(300 / portTICK_PERIOD_MS);
     GetSettings(&ri);
-    // ESP_LOGI(TAG, "%")
 
-    int intValue = atoi(unsignedCharToString(ri.ScanTime));
-    std::string stringValue = std::to_string(intValue);
+    uint32_t littleEndianValue = toLittleEndian((uint32_t)ri.Serial);
 
-    // Convert the std::string to a const char* if needed
-    const char *charValue = stringValue.c_str();
-
-    int intValue_ = ri.Serial;
-    uint32_t littleEndianValue = toLittleEndian((uint32_t)intValue_);
     lv_label_set_text(ui_device_id_labelx, intToString(littleEndianValue));
     lv_label_set_text(ui_version_labelx, charArrayToString(ri.VersionInfo, 2));
-    lv_textarea_set_text(ui_scantime_txtarea, charValue);
+    lv_textarea_set_text(ui_scantime_txtarea, unsignedCharToString(ri.ScanTime));
     lv_textarea_set_one_line(ui_scantime_txtarea, true);
     lv_textarea_set_text(ui_power_txtarea, unsignedCharToString(ri.Power));
     lv_textarea_set_one_line(ui_power_txtarea, true);
@@ -32,32 +27,56 @@ void reader_info_fetching_task(void *pVparameters)
     lv_label_set_text(ui_minf_labelx, intToString(ri.MinFreq));
     lv_label_set_text(ui_maxf_labelx, intToString(ri.MaxFreq));
 
+    /* set the switch state */
+
+    if (ri.BeepOn)
+        lv_obj_add_state(ui_beepon_switch, LV_STATE_CHECKED);
+    else
+        lv_obj_clear_state(ui_beepon_switch, LV_STATE_CHECKED);
+
+    /* LOG */
+    ESP_LOGI(TAG, "device_id: %s", intToString(littleEndianValue));
+    ESP_LOGI(TAG, "VersionInfo: %s", charArrayToString(ri.VersionInfo, 2));
+    ESP_LOGI(TAG, "ScanTime: %s", unsignedCharToString(ri.ScanTime));
+    ESP_LOGI(TAG, "Power: %s", unsignedCharToString(ri.Power));
+    ESP_LOGI(TAG, "Antenna: %s", unsignedCharToString(ri.Antenna));
+    ESP_LOGI(TAG, "Protocol: %s", unsignedCharToString(ri.Protocol));
+    ESP_LOGI(TAG, "MinFreq: %s", intToString(ri.MinFreq));
+    ESP_LOGI(TAG, "MaxFreq: %s", intToString(ri.MaxFreq));
+    ESP_LOGI(TAG, "BeepOn: %s", unsignedCharToString(ri.BeepOn));
+
     notif_msg_update("Done");
     vTaskDelay(300 / portTICK_PERIOD_MS);
     system_status.reader_data_fetched = true;
     notif_panel_del();
+
+    /* releasing write button  */
+    lv_obj_add_flag(ui_reader_info_write, LV_OBJ_FLAG_CLICKABLE);
+
     RFID_TASK_HANDLE = NULL;
     vTaskDelete(RFID_TASK_HANDLE);
 }
 
 TaskHandle_t READER_WRITE_TASK_HANDLE = NULL;
+
 void reader_info_write(void *pVparameters)
 {
     create_notif_panel("READER", "Writing data, please wait", true);
     vTaskDelay(300 / portTICK_PERIOD_MS);
 
     char rfid_band_dd[20] = {0};
+    /* currently not setting options for multiple baudrate*/
     // char rfid_baud_dd[20] = {0};
     uint32_t RFID_DD_BUFFER_SIZE = 20;
 
-    /*getting scan time from twxtarea*/
-    int intValue = std::stoi(lv_textarea_get_text(ui_scantime_txtarea));
+    /*getting scan time from textarea*/
 
-    // ri.ScanTime = lv_textarea_get_text(ui_scantime_txtarea);
-    ////////////////////////////////////////
-    ri.ScanTime = convertStringToUnsignedChar(lv_textarea_get_text(ui_scantime_txtarea));
-    ESP_LOGI("TAG", "%s", lv_textarea_get_text(ui_scantime_txtarea));
+    ri.ScanTime = charArrayToInt(lv_textarea_get_text(ui_scantime_txtarea));
+    // ri.ScanTime = 3;
+
+    // ESP_LOGI("TAG", "convertStringToUnsignedChar(lv_textarea_get_text(ui_scantime_txtarea)%s", convertStringToUnsignedChar(lv_textarea_get_text(ui_scantime_txtarea));
     ESP_LOGI("TAG", "%d", ri.ScanTime);
+
     ri.Power = charArrayToInt(lv_textarea_get_text(ui_power_txtarea));
 
     /*getting band dropdown*/
@@ -65,12 +84,12 @@ void reader_info_write(void *pVparameters)
 
     /*setting band*/
     ri.Band = toupper(rfid_band_dd[0]);
-    // ri.BeepOn = 0;
 
-    /*getting baudrate dropdown*/
+    ri.BeepOn = lv_obj_has_state(ui_beepon_switch, LV_STATE_CHECKED);
+
+    /*getting and setting baudrate */
+
     // lv_dropdown_get_selected_str(ui_baud_dd, rfid_baud_dd, RFID_DD_BUFFER_SIZE);
-
-    /*setting baudrate*/
     // ri.BaudRate = charArrayToInt(rfid_baud_dd);
 
     /*updating new settings*/
@@ -81,8 +100,10 @@ void reader_info_write(void *pVparameters)
     notif_panel_del();
     vTaskDelay(10 / portTICK_PERIOD_MS);
     update_rfid_tab();
-    READER_WRITE_TASK_HANDLE = NULL;
+
     vTaskDelay(300 / portTICK_PERIOD_MS);
+
+    READER_WRITE_TASK_HANDLE = NULL;
     vTaskDelete(READER_WRITE_TASK_HANDLE);
 }
 

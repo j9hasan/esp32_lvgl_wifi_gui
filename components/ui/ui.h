@@ -47,6 +47,7 @@ extern "C"
     /* wifi tab */
     extern void ui_setupScreen_screen_init(void);
     extern lv_obj_t *ui_setupScreen;
+    ////////////////////////////////////////////////////////////// WIFI TAB /////////////////////////////////////////////////////////
     extern lv_obj_t *ui_wifi_ssid_label;
     extern lv_obj_t *ui_wifi_ssid_dd;
     extern lv_obj_t *ui_wifi_pass_label;
@@ -58,11 +59,23 @@ extern "C"
     extern lv_obj_t *ui_wifi_e_conn_btn;
     extern lv_obj_t *ui_wifi_e_conn_btn_label;
     extern lv_obj_t *ui_wifi_tab_label;
+    extern lv_obj_t *ui_wifi_save_checkbox;
+    extern lv_obj_t *ui_available_network_label;
+    extern lv_obj_t *ui_av_network_container;
+    extern lv_obj_t *ui_wifi_setup;
+    extern lv_obj_t *wn_panel;
+    extern lv_obj_t *wnp_close_btn;
+    extern lv_obj_t *wnp_msg;
+    extern lv_obj_t *spinner;
 
     /* event cb */
     void ui_wifi_scan_event_cb(lv_event_t *event);
     void ui_wifi_pass_ta_event_cb(lv_event_t *event);
     void ui_wifi_conn_event_cb(lv_event_t *event);
+    void wnp_close_btn_cb(lv_event_t *event);
+    void wnp_update(const char *msg);
+    void wnp_del(const char *msg);
+    void set_angle(lv_obj_t *spinner, uint32_t v);
 
     ////////////////////////////////////////////////////////////// RFID TAB /////////////////////////////////////////////////////////
     extern lv_obj_t *ui_bana_dd;

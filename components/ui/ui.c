@@ -38,6 +38,14 @@ lv_obj_t *ui_wifi_scan_btn_label;
 lv_obj_t *ui_wifi_e_conn_btn;
 lv_obj_t *ui_wifi_e_conn_btn_label;
 lv_obj_t *ui_wifi_tab_label;
+lv_obj_t *ui_wifi_save_checkbox;
+lv_obj_t *ui_available_network_label;
+lv_obj_t *ui_av_network_container;
+lv_obj_t *ui_wifi_setup;
+lv_obj_t *wn_panel;
+lv_obj_t *wnp_close_btn;
+lv_obj_t *wnp_msg;
+lv_obj_t *spinner;
 
 /* rfid tab */
 lv_obj_t *ui_bana_dd;
@@ -128,6 +136,17 @@ void ui_wifi_conn_event_cb(lv_event_t *event)
         ESP_LOGI("WIFI CONN CB", "wifi conn task already running");
     }
 }
+
+void wnp_close_btn_cb(lv_event_t *event)
+{
+    lv_event_code_t event_code = lv_event_get_code(event);
+
+    if (event_code == LV_EVENT_CLICKED)
+    {
+        wnp_del("del");
+        // lv_obj_add_flag(wn_panel, LV_OBJ_FLAG_HIDDEN);
+    }
+}
 /////////////////////////////////////////////////////////////RFID TAB////////////////////////////////////////////////////////
 
 void ui_reader_power_txtarea_cb(lv_event_t *event)
@@ -154,21 +173,16 @@ void ui_reader_info_write_cb(lv_event_t *event)
 
     if (event_code == LV_EVENT_CLICKED)
     {
-        if (READER_WRITE_TASK_HANDLE == NULL)
+        if ((READER_WRITE_TASK_HANDLE == NULL) & system_status.reader)
         {
-            if (system_status.reader)
-            {
-                xTaskCreatePinnedToCore(reader_info_write, "reader_info_write",
-                                        RFID_TASK_STACK_SIZE, NULL,
-                                        RFID_TASK_PRIORITY,
-                                        &READER_WRITE_TASK_HANDLE,
-                                        RFID_TASK_CORE);
-                ESP_LOGI("reader write", "writing reader info.");
-            }
-            else
-            {
-                ESP_LOGI("reader write", "reader disconnected.");
-            }
+            lv_obj_clear_flag(ui_reader_info_write, LV_OBJ_FLAG_CLICKABLE);
+
+            xTaskCreatePinnedToCore(reader_info_write, "reader_info_write",
+                                    RFID_TASK_STACK_SIZE, NULL,
+                                    RFID_TASK_PRIORITY,
+                                    &READER_WRITE_TASK_HANDLE,
+                                    RFID_TASK_CORE);
+            ESP_LOGI("reader write", "writing reader info.");
         }
         else
         {
@@ -266,35 +280,39 @@ void kb_del()
 
 void notif_panel_close_event_cb(lv_event_t *event)
 {
-    ESP_LOGI("PANEL DEL CB", "CALLED");
+    // ESP_LOGI("PANEL DEL CB", "CALLED");
     lv_event_code_t event_code = lv_event_get_code(event);
     if (event_code == LV_EVENT_CLICKED)
     {
         if (lv_obj_is_valid(notif_panel))
         {
             ESP_LOGI("PANEL DEL CB", "PANEL NOT NULL");
+            lv_obj_add_flag(notif_panel, LV_OBJ_FLAG_HIDDEN);
             lv_obj_del_async(notif_panel);
             notif_panel = NULL;
         }
         else
         {
             ESP_LOGI("PANEL DEL CB", "PANEL IS NULL");
+            lv_obj_add_flag(notif_panel, LV_OBJ_FLAG_HIDDEN);
         }
     }
 }
+
 void notif_panel_del()
 {
-
+    const char *TAG = "notif panel del";
     if (lv_obj_is_valid(notif_panel))
     {
-        ESP_LOGI("PANEL DEL", "CALLED");
-        lv_obj_del_async(notif_panel);
+        // lv_obj_add_flag(notif_panel, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_del(notif_panel);
         notif_panel = NULL;
+        ESP_LOGI(TAG, "notification panel deleted.");
     }
-
     else
     {
-        ESP_LOGI("PANEL DEL", "PANEL IS NULL");
+        ESP_LOGI(TAG, "PANEL IS NULL");
+        lv_obj_add_flag(notif_panel, LV_OBJ_FLAG_HIDDEN);
     }
 }
 

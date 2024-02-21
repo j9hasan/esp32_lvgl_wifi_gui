@@ -30,6 +30,13 @@ extern "C" void app_main()
   }
   ESP_ERROR_CHECK(ret);
 
+  /* Create and start a periodic timer interrupt to call lv_tick_inc */
+  // const esp_timer_create_args_t periodic_timer_args = {
+  //     .callback = &lv_tick_task, .name = "periodic_gui"};
+  // esp_timer_handle_t periodic_timer;
+  // ESP_ERROR_CHECK(esp_timer_create(&periodic_timer_args, &periodic_timer));
+  // ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_timer, LV_TICK_PERIOD_MS * 1000));
+
   /* Start system status event */
   systemStatusEventGroup = xEventGroupCreate();
   xTaskCreatePinnedToCore(ui_task, "gui", GUI_TASK_STACK_SIZE, NULL, GUI_TASK_PRIORITY, &GUI_TASK_HANDLE, GUI_TASK_CORE);
@@ -42,7 +49,7 @@ extern "C" void app_main()
   const char *bool_to_str;
 
   /* Create notification panel to show initialization status*/
-  create_notif_panel("Init: READER", "", true);
+  create_notif_panel("Init: reader", "", true);
   lv_label_set_text_fmt(notif_msg, "COM status: %s", bool_to_str = (stat) ? "OK" : "FAILED");
 
   /* Init reader */
@@ -76,13 +83,13 @@ extern "C" void app_main()
    *vEventGroupDelete(systemStatusEventGroup);
    */
 
-  vTaskDelay(1000 / portTICK_PERIOD_MS);
+  vTaskDelay(700 / portTICK_PERIOD_MS);
+
   notif_panel_del();
 }
 
 static void ui_task(void *pvParameter)
 {
-
   (void)pvParameter;
   xGuiSemaphore = xSemaphoreCreateMutex();
 
@@ -128,16 +135,15 @@ static void ui_task(void *pvParameter)
   ui_init();
   xEventGroupSetBits(systemStatusEventGroup, UI_INITIALIZED_BIT);
 
-  // lv_scr_load_anim(ui_setupScreen, LV_SCR_LOAD_ANIM_MOVE_LEFT, 200, 0, true);
   while (1)
   {
+    vTaskDelay(pdMS_TO_TICKS(10));
     /* Try to take the semaphore, call lvgl related function on success */
     if (pdTRUE == xSemaphoreTake(xGuiSemaphore, portMAX_DELAY))
     {
       lv_task_handler();
       xSemaphoreGive(xGuiSemaphore);
     }
-    vTaskDelay(pdMS_TO_TICKS(10));
   }
   vTaskDelete(GUI_TASK_HANDLE);
 }

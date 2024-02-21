@@ -16,23 +16,23 @@
 ////////////////////////////////////////TASK PARAMETERS////////////////////////////////////////
 
 /* gui task parameters */
-#define GUI_TASK_STACK_SIZE 1024 * 5
-#define GUI_TASK_PRIORITY 2
+#define GUI_TASK_STACK_SIZE 5 * 1024
+#define GUI_TASK_PRIORITY 10
 #define GUI_TASK_CORE 1
 
 /* rfid task parameters */
-#define RFID_TASK_STACK_SIZE 1024 * 5
-#define RFID_TASK_PRIORITY 2
+#define RFID_TASK_STACK_SIZE 5 * 1024
+#define RFID_TASK_PRIORITY tskIDLE_PRIORITY + 1
 #define RFID_TASK_CORE 1
 
 /*wifi task parameters*/
-#define WIFI_TASK_PRIORITY 2
+#define WIFI_TASK_PRIORITY 10
 #define WIFI_SCAN_TASK_STACK_SIZE 5 * 1024
 #define WIFI_CONNECT_TASK_STACK_SIZE 5 * 1024
-#define WIFI_TASK_CORE 1
+#define WIFI_TASK_CORE 0
 
 /*inv scan task parameters*/
-#define INV_TASK_PRIORITY 6
+#define INV_TASK_PRIORITY tskIDLE_PRIORITY
 #define INV_SCAN_TASK_STACK_SIZE 5 * 1024
 #define INV_TASK_CORE 1
 

@@ -154,10 +154,11 @@ void wifi_conn_task(void *pvParameters)
 {
     const char *TAG = "WIFI CONN TASK";
 
-    // vTaskDelay(200 / portTICK_PERIOD_MS);
-
     /*create notif panel wait for connection status */
-    create_notif_panel("Wifi", "Connecting...", true);
+    wnp_update("Connecting...");
+
+    set_angle(spinner, 20);
+    vTaskDelay(500 / portTICK_PERIOD_MS);
 
     lv_obj_clear_flag(ui_wifi_scan_btn, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_clear_flag(ui_wifi_conn_btn, LV_OBJ_FLAG_CLICKABLE);
@@ -171,6 +172,8 @@ void wifi_conn_task(void *pvParameters)
     memcpy(temp_ssid, wifi_ssid_dd, 32);
     memcpy(temp_pass, lv_textarea_get_text(ui_wifi_pass_ta), 64);
 
+    // lv_arc_set_value(spinner, 20);
+
     // ESP_LOGI(TAG, "temp_ssid: %s",temp_ssid);
     // ESP_LOGI(TAG, "temp_pass: %s",temp_pass);
     // ESP_LOGI(TAG, "wifi connect task");
@@ -183,9 +186,13 @@ void wifi_conn_task(void *pvParameters)
             .sae_pwe_h2e = WPA3_SAE_PWE_BOTH,
         },
     };
+    // lv_arc_set_value(spinner, 40);
 
     u8cpy(wifi_config.sta.ssid, temp_ssid);
     u8cpy(wifi_config.sta.password, temp_pass);
+
+    set_angle(spinner, 35);
+    vTaskDelay(500 / portTICK_PERIOD_MS);
 
     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
     ESP_ERROR_CHECK(esp_wifi_start());
@@ -194,22 +201,37 @@ void wifi_conn_task(void *pvParameters)
     xEventGroupClearBits(systemStatusEventGroup, WIFI_FAIL_BIT);
     xEventGroupClearBits(systemStatusEventGroup, WIFI_CONNECTED_BIT);
 
+    set_angle(spinner, 50);
+
     bits = xEventGroupWaitBits(systemStatusEventGroup, WIFI_FAIL_BIT | WIFI_CONNECTED_BIT, pdTRUE, pdFALSE, portMAX_DELAY);
-    vTaskDelay(700 / portTICK_PERIOD_MS);
+
+    set_angle(spinner, 70);
+    vTaskDelay(500 / portTICK_PERIOD_MS);
+
     if (bits & WIFI_CONNECTED_BIT)
     {
         ESP_LOGI(TAG, "Wifi connected");
-        lv_label_set_text_fmt(notif_msg, "Connected.\n");
-        vTaskDelay(700 / portTICK_PERIOD_MS);
+        wnp_update("Connected.");
+        set_angle(spinner, 100);
+        vTaskDelay(300 / portTICK_PERIOD_MS);
     }
     else if (bits & WIFI_FAIL_BIT)
     {
-        ESP_LOGE(TAG, "wifi disconnected");
-        lv_label_set_text_fmt(notif_msg, "Connection failed.\n");
+        ESP_LOGE(TAG, "Failed to connect.");
+        wnp_update("Failed to connect.");
+        set_angle(spinner, 100);
+        vTaskDelay(300 / portTICK_PERIOD_MS);
+    }
+    else
+    {
+        ESP_LOGE(TAG, "Unexpected event.");
+        wnp_update("Unexpected event.");
         vTaskDelay(700 / portTICK_PERIOD_MS);
     }
 
-    notif_panel_del();
+    wnp_del("del");
+
+    // lv_obj_add_flag(notif_panel, LV_OBJ_FLAG_HIDDEN);
 
     lv_obj_add_flag(ui_wifi_scan_btn, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_add_flag(ui_wifi_conn_btn, LV_OBJ_FLAG_CLICKABLE);
@@ -221,13 +243,15 @@ void wifi_conn_task(void *pvParameters)
 /* Initialize Wi-Fi as sta and set scan method */
 void wifi_scan_task(void *pvParameters)
 {
+    wnp_update("Scanning...");
     lv_obj_clear_flag(ui_wifi_scan_btn, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_clear_flag(ui_wifi_conn_btn, LV_OBJ_FLAG_CLICKABLE);
 
     static const char *TAG = "wifi scan";
     ESP_LOGI(TAG, "wifi AP scan");
 
-    create_notif_panel("Wifi", "Scanning...", true);
+    set_angle(spinner, 20);
+    vTaskDelay(100 / portTICK_PERIOD_MS);
 
     uint16_t number = DEFAULT_SCAN_LIST_SIZE;
     wifi_ap_record_t ap_info[DEFAULT_SCAN_LIST_SIZE];
@@ -238,21 +262,18 @@ void wifi_scan_task(void *pvParameters)
     ESP_ERROR_CHECK(esp_wifi_start());
     ESP_LOGI(TAG, "scan started");
 
-    notif_msg_update("Scanning...");
-    vTaskDelay(500 / portTICK_PERIOD_MS);
+    set_angle(spinner, 40);
+    // vTaskDelay(200 / portTICK_PERIOD_MS);
 
     esp_wifi_scan_start(NULL, true);
-
-    notif_msg_update("Scan finished.");
-    vTaskDelay(500 / portTICK_PERIOD_MS);
 
     // ESP_LOGI(TAG, "Max AP number ap_info can hold = %u", number);
     ESP_ERROR_CHECK(esp_wifi_scan_get_ap_records(&number, ap_info));
     ESP_ERROR_CHECK(esp_wifi_scan_get_ap_num(&ap_count));
     ESP_LOGI(TAG, "Total APs scanned = %u, actual AP number ap_info holds = %u", ap_count, number);
 
-    // lv_label_set_text_fmt(ui_notifyPanellabel, "AP found %u\nsetting dropdown", ap_count);
-    // clear all bits
+    set_angle(spinner, 65);
+    vTaskDelay(200 / portTICK_PERIOD_MS);
 
     memset(wifi_dd_list, 0, sizeof(wifi_dd_list));
     for (int i = 0; i < number; i++)
@@ -266,13 +287,16 @@ void wifi_scan_task(void *pvParameters)
             strcat(wifi_dd_list, "\n");
         }
     }
+    set_angle(spinner, 85);
+    vTaskDelay(350 / portTICK_PERIOD_MS);
     // ESP_LOGI(TAG, "WiFi DD List:\n%s", wifi_dd_list);
-
+    wnp_update("Scan finished.");
     lv_dropdown_set_options(ui_wifi_ssid_dd, wifi_dd_list);
 
-    vTaskDelay(500 / portTICK_PERIOD_MS);
+    set_angle(spinner, 100);
+    vTaskDelay(100 / portTICK_PERIOD_MS);
 
-    notif_panel_del();
+    wnp_del("del");
 
     lv_obj_add_flag(ui_wifi_scan_btn, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_add_flag(ui_wifi_conn_btn, LV_OBJ_FLAG_CLICKABLE);

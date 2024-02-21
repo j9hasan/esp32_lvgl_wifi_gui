@@ -21,7 +21,7 @@
         "event_groups.h": "c",
         "string.h": "c"
     },
-    "idf.portWin": "COM15",
+    "idf.portWin": "COM3",
     "idf.flashType": "UART",
     "idf.flashBaudRate": "921600"
 }
