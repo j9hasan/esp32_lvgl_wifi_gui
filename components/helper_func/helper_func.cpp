@@ -4,7 +4,16 @@
 #include "helper_func.h"
 #include <cstdio>
 #include <cstdlib>
+#include <ctype.h>
 
+void toLowerCase(char *str)
+{
+    while (*str)
+    {
+        *str = tolower((unsigned char)*str);
+        str++;
+    }
+}
 /*copies ssid and pass to wifi_config*/
 char *u8cpy(uint8_t *dst, const uint8_t *src)
 {

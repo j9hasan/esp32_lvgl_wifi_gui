@@ -6,6 +6,7 @@
 #include "nvs_flash.h"
 #include "inventory.h"
 #include "system_status.h"
+#include "sd_fat.h"
 
 /* Defines */
 #define LV_TICK_PERIOD_MS 10
@@ -15,20 +16,24 @@ SemaphoreHandle_t xGuiSemaphore;
 /* Prototypes */
 static void lv_tick_task(void *arg);
 static void ui_task(void *pvParameter);
+static void gpioConfig();
 
 /* Task handler */
 TaskHandle_t GUI_TASK_HANDLE = NULL;
 
+/* error handling */
+esp_err_t err;
+
 extern "C" void app_main()
 {
   /* Initialize NVS */
-  esp_err_t ret = nvs_flash_init();
-  if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND)
+  esp_err_t err = nvs_flash_init();
+  if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND)
   {
     ESP_ERROR_CHECK(nvs_flash_erase());
-    ret = nvs_flash_init();
+    err = nvs_flash_init();
   }
-  ESP_ERROR_CHECK(ret);
+  ESP_ERROR_CHECK(err);
 
   /* Create and start a periodic timer interrupt to call lv_tick_inc */
   // const esp_timer_create_args_t periodic_timer_args = {
@@ -58,34 +63,43 @@ extern "C" void app_main()
   lv_label_set_text_fmt(notif_msg, "Reader status: %s", bool_to_str = (stat) ? "OK" : "FAILED");
   vTaskDelay(700 / portTICK_PERIOD_MS);
 
-  /* Init wifi driver */
-  ret = wifi_init_sta();
-  lv_label_set_text(notif_panel_title, "Init: WIFI");
-  lv_label_set_text_fmt(notif_msg, "Wifi driver status: %s", esp_err_to_name(ret));
+  /* init sd card */
+  lv_label_set_text(notif_panel_title, "Init: SD card");
+  lv_label_set_text(notif_msg, "Getting sd status...");
   vTaskDelay(700 / portTICK_PERIOD_MS);
+  initSD();
+  lv_label_set_text_fmt(notif_msg, "SD status: %s", esp_err_to_name(sd_card_error));
+  vTaskDelay(1000 / portTICK_PERIOD_MS);
+
+  /* Init wifi driver */
+  lv_label_set_text(notif_panel_title, "Init: WiFi");
+  lv_label_set_text(notif_msg, "Getting wifi status...");
+  wifi_init_sta();
 
   /* Wait for wifistatus connected/disconnected */
-  bits = xEventGroupWaitBits(systemStatusEventGroup, WIFI_FAIL_BIT | WIFI_CONNECTED_BIT, pdTRUE, pdFALSE, portMAX_DELAY);
+  bits = xEventGroupWaitBits(systemStatusEventGroup, WIFI_FAIL_BIT | WIFI_CONNECTED_BIT, pdTRUE, pdFALSE, 5000 / portTICK_PERIOD_MS);
   if (bits & WIFI_CONNECTED_BIT)
   {
-    lv_label_set_text_fmt(notif_msg, "Wifi status %s", "Connected");
+    lv_label_set_text_fmt(notif_msg, "Wifi status: %s", "Connected");
   }
   else if (bits & WIFI_FAIL_BIT)
   {
-    lv_label_set_text_fmt(notif_msg, "Wifi status %s", "Not connected");
+    lv_label_set_text_fmt(notif_msg, "Wifi status: %s", "Not connected");
   }
   else
   {
-    lv_label_set_text_fmt(notif_msg, "Wifi status %s", "Unexpected event");
+    lv_label_set_text_fmt(notif_msg, "Wifi status: %s", esp_err_to_name(wifi_connect_error));
+    ESP_LOGI(TAG, " Conn stat: %s ", esp_err_to_name(wifi_connect_error));
   }
 
   /* Delete the event group when it's no longer needed
    *vEventGroupDelete(systemStatusEventGroup);
    */
 
-  vTaskDelay(700 / portTICK_PERIOD_MS);
+  vTaskDelay(2000 / portTICK_PERIOD_MS);
 
   notif_panel_del();
+  gpioConfig();
 }
 
 static void ui_task(void *pvParameter)
@@ -155,6 +169,25 @@ static void lv_tick_task(void *arg)
 
   lv_tick_inc(LV_TICK_PERIOD_MS);
 }
+/* gpio and scan interrupt handler */
+void gpioConfig()
+{
+  // Configure button GPIO as input
+  gpio_config_t io_conf = {
+      .pin_bit_mask = (1ULL << BUTTON_PIN),
+      .mode = GPIO_MODE_INPUT,
+      .pull_up_en = GPIO_PULLUP_ENABLE,
+      .intr_type = GPIO_INTR_NEGEDGE,
+  };
+  gpio_config(&io_conf);
+
+  // Install ISR service with default configuration
+  gpio_install_isr_service(0);
+
+  // Hook ISR handler to the button pin
+  gpio_isr_handler_add(BUTTON_PIN, button_isr_handler, (void *)BUTTON_PIN);
+}
+
 // MUTEX
 /*
 

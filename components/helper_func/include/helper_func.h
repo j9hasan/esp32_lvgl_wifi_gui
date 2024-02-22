@@ -18,6 +18,7 @@ extern "C"
     uint32_t toLittleEndian(uint32_t value);
     int charArrayToInt(const char array[]);
     unsigned char convertStringToUnsignedChar(const char *str);
+    void toLowerCase(char *str);
 #ifdef __cplusplus
 }
 #endif

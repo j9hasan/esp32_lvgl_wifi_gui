@@ -29,4 +29,22 @@ typedef struct
 // Declare a global instance of the Status structure
 extern Status system_status;
 
+/* error handling */
+extern esp_err_t wifi_connect_error;
+extern esp_err_t sd_card_error;
+// extern esp_err_t wifi_status_error;
+
+/* debug log*/
+#define DEBUG
+#ifdef DEBUG
+#define __log(format, ...)                                \
+    do                                                    \
+    {                                                     \
+        printf("Debug Log: " format "\n", ##__VA_ARGS__); \
+        fflush(stdout);                                   \
+    } while (0)
+#else
+#define __log(format, ...) // Define an empty macro for release mode
+#endif
+
 #endif // SYSTEM_STATUS_H

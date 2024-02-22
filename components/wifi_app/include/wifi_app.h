@@ -34,7 +34,7 @@ extern "C"
     /* FUNCTION PROTOTYPES FOR USING IN C FILE */
     void wifi_scan_task(void *pvParameters);
     void wifi_conn_task(void *pvParameters);
-    esp_err_t wifi_init_sta(void);
+    void wifi_init_sta(void);
     void Set_SystemTime_SNTP();
     void Get_current_date_time();
 

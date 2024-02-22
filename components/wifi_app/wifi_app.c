@@ -11,8 +11,8 @@
 static int s_retry_num = 0;
 #define WIFI_STATUS_PRINT 0
 
-/* err status */
-esp_err_t err;
+/* error status */
+esp_err_t wifi_connect_error = -1;
 
 /* task handler */
 TaskHandle_t wifi_scan_task_handle = NULL, wifi_connect_task_handle = NULL, get_date_time_task_handle = NULL;
@@ -27,8 +27,8 @@ static void event_handler(void *arg, esp_event_base_t event_base, int32_t event_
     if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START)
     {
         ESP_LOGI(TAG, "event id: WIFI_EVENT_STA_START ");
-        err = esp_wifi_connect();
-        // ESP_LOGI(TAG, " Conn stat: %s ", esp_err_to_name(err));
+        wifi_connect_error = esp_wifi_connect();
+        ESP_LOGI(TAG, " Conn stat: %s ", esp_err_to_name(wifi_connect_error));
     }
     else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_CONNECTED)
     {
@@ -63,7 +63,7 @@ static void event_handler(void *arg, esp_event_base_t event_base, int32_t event_
 
         if (s_retry_num < WIFI_MAX_RETRY)
         {
-            err = esp_wifi_connect();
+            wifi_connect_error = esp_wifi_connect();
             s_retry_num++;
             ESP_LOGI(TAG, "retrying to connect to the AP");
         }
@@ -104,12 +104,11 @@ static void event_handler(void *arg, esp_event_base_t event_base, int32_t event_
         xEventGroupSetBits(systemStatusEventGroup, WIFI_CONNECTED_BIT);
     }
 }
-esp_err_t wifi_init_sta(void)
+void wifi_init_sta(void)
 {
-    esp_err_t err;
-
     const char *TAG = "WIFI STA INIT";
 
+    esp_err_t err;
     err = esp_netif_init();
 
     err = esp_event_loop_create_default();
@@ -138,7 +137,6 @@ esp_err_t wifi_init_sta(void)
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG, "Error occurred: %s", esp_err_to_name(err));
-        return err;
     }
 
     ESP_LOGI(TAG, "wifi_init_sta finished.");
@@ -147,7 +145,6 @@ esp_err_t wifi_init_sta(void)
     // ESP_ERROR_CHECK(esp_event_handler_instance_unregister(IP_EVENT, IP_EVENT_STA_GOT_IP, instance_got_ip));
     // ESP_ERROR_CHECK(esp_event_handler_instance_unregister(WIFI_EVENT, ESP_EVENT_ANY_ID, instance_any_id));
     // vEventGroupDelete(s_wifi_event_group);
-    return ESP_OK;
 }
 
 void wifi_conn_task(void *pvParameters)

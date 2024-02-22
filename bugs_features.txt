@@ -4,7 +4,7 @@
 1.wifi not connected ERR                                                fixed
 2.notif panel closse btn click crash [MAJOR]
 3.j4210 , scantime , scamtime *100 show, /100 write
-4.
+4.make fillter = false when user close filter panel without writing any data
 
 
 

@@ -19,9 +19,11 @@
         "*.inc": "c",
         "esp_timer.h": "c",
         "event_groups.h": "c",
-        "string.h": "c"
+        "string.h": "c",
+        "system_status.h": "c",
+        "sd_fat.h": "c"
     },
-    "idf.portWin": "COM3",
+    "idf.portWin": "COM15",
     "idf.flashType": "UART",
     "idf.flashBaudRate": "921600"
 }
