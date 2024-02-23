@@ -22,7 +22,7 @@ void inventoryScan(void *pvParameters)
         /*---------*/
         _ui_screen_change(&ui_mainScreen, LV_SCR_LOAD_ANIM_FADE_ON, 50, 0, &ui_mainScreen_screen_init);
     }
-    const char *TAG = "inventory scan";
+
     while (gpio_get_level(BUTTON_PIN) == 0)
     {
         int n = Inventory(filterOn);
@@ -30,8 +30,8 @@ void inventoryScan(void *pvParameters)
         {
             if (pdTRUE == xSemaphoreTake(xGuiSemaphore, portMAX_DELAY))
             {
-                lv_table_set_cell_value_fmt(table, 0, 0, "EPC(tag count: %d)", n);
-                lv_table_set_row_cnt(table, n);
+                lv_table_set_cell_value_fmt(epc_table, 0, 0, "EPC(tag count: %d)", n);
+                lv_table_set_row_cnt(epc_table, n);
                 xSemaphoreGive(xGuiSemaphore);
             }
             vTaskDelay(1 / portTICK_PERIOD_MS);
@@ -42,8 +42,8 @@ void inventoryScan(void *pvParameters)
             GetResult((unsigned char *)&sd, i);
             string epc = string((char *)sd.epc, sd.epclen);
             string hex = tohex(epc);
-            printf("Ant = %d, Len = %d, EPC = %s, RSSI = %d, Count = %d\n",
-                   sd.ant, sd.epclen, hex.c_str(), sd.RSSI, sd.count);
+            __log("Ant = %d, Len = %d, EPC = %s, RSSI = %d, Count = %d\n",
+                  sd.ant, sd.epclen, hex.c_str(), sd.RSSI, sd.count);
             if (merge_on) /*merge check*/
             {
                 if (!hasSameEPCNUM(sdVector, sd.epc, sd.epclen))
@@ -60,8 +60,8 @@ void inventoryScan(void *pvParameters)
                 str = bytes2hex(sd.epc, sd.epclen);
                 if (pdTRUE == xSemaphoreTake(xGuiSemaphore, portMAX_DELAY))
                 {
-                    lv_table_set_cell_value(table, i + 1, 0, str.c_str());
-                    lv_table_set_cell_value(table, i + 1, 1, signedCharToString(sd.RSSI));
+                    lv_table_set_cell_value(epc_table, i + 1, 0, str.c_str());
+                    lv_table_set_cell_value(epc_table, i + 1, 1, signedCharToString(sd.RSSI));
                     xSemaphoreGive(xGuiSemaphore);
                 }
                 vTaskDelay(0.1 / portTICK_PERIOD_MS);
@@ -71,8 +71,8 @@ void inventoryScan(void *pvParameters)
         {
             if (pdTRUE == xSemaphoreTake(xGuiSemaphore, portMAX_DELAY))
             {
-                lv_table_set_cell_value_fmt(table, 0, 0, "EPC(tag count: %d)", sdVector.size());
-                lv_table_set_row_cnt(table, sdVector.size());
+                lv_table_set_cell_value_fmt(epc_table, 0, 0, "EPC(tag count: %d)", sdVector.size());
+                lv_table_set_row_cnt(epc_table, sdVector.size());
                 xSemaphoreGive(xGuiSemaphore);
             }
             vTaskDelay(1 / portTICK_PERIOD_MS);
@@ -83,8 +83,8 @@ void inventoryScan(void *pvParameters)
                 str_ = bytes2hex(sdVector[i].epc, sdVector[i].epclen);
                 if (pdTRUE == xSemaphoreTake(xGuiSemaphore, portMAX_DELAY))
                 {
-                    lv_table_set_cell_value(table, i + 1, 0, str_.c_str());
-                    lv_table_set_cell_value(table, i + 1, 1, signedCharToString(sdVector[i].RSSI));
+                    lv_table_set_cell_value(epc_table, i + 1, 0, str_.c_str());
+                    lv_table_set_cell_value(epc_table, i + 1, 1, signedCharToString(sdVector[i].RSSI));
                     xSemaphoreGive(xGuiSemaphore);
                 }
                 vTaskDelay(1 / portTICK_PERIOD_MS);
@@ -93,11 +93,11 @@ void inventoryScan(void *pvParameters)
         // vTaskDelay(100 / portTICK_PERIOD_MS);
     }
     // printVector(sdVector);
-    ESP_LOGI(TAG, "bye!");
+    __log("bye!");
     inventory_task_handle = NULL;
     //	vTaskDelay(200/portTICK_PERIOD_MS);
     vTaskDelete(NULL);
-    // ESP_LOGI(TAG, "bye!");
+    // __log( "bye!");
 }
 // GPIO ISR handler for the button press
 void IRAM_ATTR button_isr_handler(void *arg)
@@ -114,7 +114,7 @@ void IRAM_ATTR button_isr_handler(void *arg)
     }
     else
     {
-        /*printf("inventory task already running");*/
+        /*__log("inventory task already running");*/
     }
 }
 bool hasSameEPCNUM(const std::vector<ScanResult> &vector, const unsigned char *epcnum, int epclen)
@@ -130,31 +130,31 @@ bool hasSameEPCNUM(const std::vector<ScanResult> &vector, const unsigned char *e
 }
 int getInventory()
 {
-    // cprintf("\n>>> getInventory() STARTED:\n");
+    // c__log("\n>>> getInventory() STARTED:\n");
     int n = Inventory(false);
-    // cprintf("Found %d tags.\n", n);
+    // c__log("Found %d tags.\n", n);
     for (int i = 0; i < n; i++)
     {
         printtag(i);
     }
-    // cprintf("getInventory() ENDED <<<\n");
+    // c__log("getInventory() ENDED <<<\n");
     return n;
 }
 
-// printf("EPCNUM: ");
+// __log("EPCNUM: ");
 // for (int j = 0; j < sdVector[i].epclen; ++j)
 // {
-//     printf("%02X ", sdVector[i].EPCNUM[j]);
+//     __log("%02X ", sdVector[i].EPCNUM[j]);
 // }
-// printf(" already exist in vector\n");
+// __log(" already exist in vector\n");
 
 // Print the contents of the vector
 // for (const auto &scanData : sdVector)
 // {
-//     printf("all EPCNUM in sdVector: ");
+//     __log("all EPCNUM in sdVector: ");
 //     for (int i = 0; i < scanData.epclen; ++i)
 //     {
-//         printf("%02X ", scanData.EPCNUM[i]);
+//         __log("%02X ", scanData.EPCNUM[i]);
 //     }
-//     printf("\n");
+//     __log("\n");
 // }

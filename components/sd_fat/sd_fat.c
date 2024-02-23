@@ -38,18 +38,9 @@ char **listFilesAndFolders(const char *path, int *numFiles)
 {
     DIR *dir = opendir(path);
     struct dirent *entry;
-    lv_obj_t *notif;
-    notif = lv_label_create(ui_checkinOutScreen);
-    lv_label_set_text(notif, "");
-    // lv_obj_set_width(notif, 300);
-    lv_obj_set_align(notif, LV_ALIGN_BOTTOM_LEFT);
-    // lv_obj_set_y(notif, -30);
-    // lv_label_set_long_mode(notif, LV_LABEL_LONG_SCROLL_CIRCULAR);
-
     if (dir == NULL)
     {
         __log("Dir is NULL");
-        lv_label_set_text(notif, "DIR status: Dir is NULL");
         return NULL;
     }
 
@@ -66,7 +57,6 @@ char **listFilesAndFolders(const char *path, int *numFiles)
     if (dir == NULL)
     {
         __log("Unable to open directory");
-        lv_label_set_text(notif, "DIR status: Unable to open directory");
         return NULL;
     }
 
@@ -75,7 +65,6 @@ char **listFilesAndFolders(const char *path, int *numFiles)
     if (fileArray == NULL)
     {
         __log("fileArray: Memory allocation error");
-        lv_label_set_text(notif, "fileArray: Memory allocation error");
         closedir(dir);
         return NULL;
     }
@@ -85,12 +74,11 @@ char **listFilesAndFolders(const char *path, int *numFiles)
     while ((entry = readdir(dir)) != NULL)
     {
         fileArray[i] = strdup(entry->d_name);
-        // ESP_LOGI(TAG, "%s", fileArray[i]);
+        // __log( "%s", fileArray[i]);
         i++;
     }
 
     closedir(dir);
-    lv_label_set_text(notif, "DIR status: OK");
     return fileArray;
 }
 void initSD()
@@ -116,7 +104,23 @@ void initSD()
     // production applications.
     __log("Using SPI peripheral");
 
-    sdmmc_host_t host = SDSPI_HOST_DEFAULT();
+    sdmmc_host_t host = {
+        .flags = SDMMC_HOST_FLAG_SPI | SDMMC_HOST_FLAG_DEINIT_ARG,
+        .slot = VSPI_HOST,
+        .max_freq_khz = SDMMC_FREQ_DEFAULT,
+        .io_voltage = 3.3f,
+        .init = &sdspi_host_init,
+        .set_bus_width = NULL,
+        .get_bus_width = NULL,
+        .set_bus_ddr_mode = NULL,
+        .set_card_clk = &sdspi_host_set_card_clk,
+        .set_cclk_always_on = NULL,
+        .do_transaction = &sdspi_host_do_transaction,
+        .deinit_p = &sdspi_host_remove_device,
+        .io_int_enable = &sdspi_host_io_int_enable,
+        .io_int_wait = &sdspi_host_io_int_wait,
+        .command_timeout_ms = 0,
+    };
     spi_bus_config_t bus_cfg = {
         .mosi_io_num = PIN_NUM_MOSI,
         .miso_io_num = PIN_NUM_MISO,
@@ -125,7 +129,7 @@ void initSD()
         .quadhd_io_num = -1,
         .max_transfer_sz = 4000,
     };
-    sd_card_error = spi_bus_initialize(host.slot, &bus_cfg, SDSPI_DEFAULT_DMA);
+    sd_card_error = spi_bus_initialize(host.slot, &bus_cfg, VSPI_HOST);
     if (sd_card_error != ESP_OK)
     {
         __log("Failed to initialize bus.");
@@ -170,7 +174,7 @@ void initSD()
 // First create a file.
 // const char *file_hello = MOUNT_POINT "/hello.txt";
 
-// ESP_LOGI(TAG, "Opening file %s", file_hello);
+// __log( "Opening file %s", file_hello);
 // FILE *f = fopen(file_hello, "w");
 // if (f == NULL)
 // {
@@ -179,7 +183,7 @@ void initSD()
 // }
 // fprintf(f, "Hello %s!\n", card->cid.name);
 // fclose(f);
-// ESP_LOGI(TAG, "File written");
+// __log( "File written");
 
 // const char *file_foo = MOUNT_POINT "/foo.txt";
 
@@ -192,7 +196,7 @@ void initSD()
 // }
 
 // // Rename original file
-// ESP_LOGI(TAG, "Renaming file %s to %s", file_hello, file_foo);
+// __log( "Renaming file %s to %s", file_hello, file_foo);
 // if (rename(file_hello, file_foo) != 0)
 // {
 //     ESP_LOGE(TAG, "Rename failed");
@@ -200,7 +204,7 @@ void initSD()
 // }
 
 // // Open renamed file for reading
-// ESP_LOGI(TAG, "Reading file %s", file_foo);
+// __log( "Reading file %s", file_foo);
 // f = fopen(file_foo, "r");
 // if (f == NULL)
 // {
@@ -219,8 +223,8 @@ void initSD()
 // {
 //     *pos = '\0';
 // }
-// ESP_LOGI(TAG, "Read from file: '%s'", line);
+// __log( "Read from file: '%s'", line);
 
 // All done, unmount partition and disable SPI peripheral
 // esp_vfs_fat_sdcard_unmount(mount_point, card);
-// ESP_LOGI(TAG, "Card unmounted");
+// __log( "Card unmounted");

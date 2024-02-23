@@ -14,130 +14,34 @@
 
 /* only global objects are here */
 
-/////////////////////////////////////////////////////// SCREEN: ui_checkinOutScreen  //////////////////////////////////////
-
-lv_obj_t *ui_checkinOutScreen;
-lv_obj_t *ui_leftContainer;
-lv_obj_t *ui_demoImg;
-lv_obj_t *ui_checkinOutScreenImgContainer;
-lv_obj_t *ui_timeLabelUiAgentCheckin;
-lv_obj_t *ui_checkinOutStatusLabel;
-lv_obj_t *ui_distributorContainer;
-lv_obj_t *ui_distributorLabel;
-lv_obj_t *ui_normalBtn2;
-
-void ui_checkin_checkoutScreen_screen_init(void);
-
-///////////////////////////////////////////////////// SCREEN: ui_memScreen ////////////////////////////////////////////////
-
-void ui_memScreen_screen_init(void);
-void ui_event_memScreen(lv_event_t *e);
-lv_obj_t *table1;
-lv_obj_t *ui_memScreen;
-lv_obj_t *ui_Container4;
-lv_obj_t *ui_chipType;
-lv_obj_t *ui_chipTypeLabel;
-lv_obj_t *ui_epcSize;
-lv_obj_t *ui_epcSizeLabel;
-lv_obj_t *ui_totalMem;
-lv_obj_t *ui_totatMemoryLabel;
-lv_obj_t *ui_tidSize;
-lv_obj_t *ui_tidSizeLabel;
-lv_obj_t *ui_pwdSize;
-lv_obj_t *ui_userSize;
-lv_obj_t *ui_userSizeLabel;
-lv_obj_t *ui_pwdSizeLabel;
-
-lv_obj_t *ui_TestBtn;
-
-void ui_event_home2(lv_event_t *e);
-lv_obj_t *ui_home2;
-lv_obj_t *ui_memScreenNotifyLabel;
-lv_obj_t *ui_memScrPanel;
-void ui_event_memscrNotifypanelClose(lv_event_t *e);
-lv_obj_t *ui_memscrNotifypanelClose;
-lv_obj_t *ui_notifyPanelclosebuttonlabel2;
-lv_obj_t *ui_memScrNotifyPanellabel;
-void ui_event_memScrTextarea(lv_event_t *e);
-lv_obj_t *ui_memScrTextarea;
-void ui_event_memScrWriteData(lv_event_t *e);
-lv_obj_t *ui_memScrWriteData;
-lv_obj_t *ui_notifyPanelclosebuttonlabel1;
-lv_obj_t *ui_authPanel;
-void ui_event_memScrNotifypanelClose3(lv_event_t *e);
-lv_obj_t *ui_mainScrNotifypanelClose3;
-lv_obj_t *ui_notifyPanelclosebuttonlabel7;
-lv_obj_t *ui_passASCIIlabel;
-void ui_event_passASCIItxtarea(lv_event_t *e);
-// void ui_event_passASCIItxtareaVC(lv_event_t *e);
-lv_obj_t *ui_passASCIItxtarea;
-void ui_event_passHEXtxtarea(lv_event_t *e);
-// void ui_event_passHEXtxtareaVC(lv_event_t *e);
-lv_obj_t *ui_passHEXtxtarea;
-lv_obj_t *ui_passHEXlabel;
-void ui_event_passUseBtn_normalBtn(lv_event_t *e);
-lv_obj_t *ui_passUseBtn;
-void ui_event_passWriteBtn_normalBtn(lv_event_t *e);
-lv_obj_t *ui_passWriteBtn;
-void ui_event_normalBtn1_normalBtn(lv_event_t *e);
-lv_obj_t *ui_normalBtn1;
-
 ////////////////////////////////////////////////////////////// SCREEN: ui_mainScreen  //////////////////////////////////////////////////////////
-void ui_mainScreen_screen_init(void);
-lv_obj_t *ui_mainScreen;
-lv_obj_t *ui_iconContainer;
-lv_obj_t *ui_bottomContainer;
-lv_obj_t *ui_wifiIcon;
-lv_obj_t *ui_settingsIcon;
-lv_obj_t *ui_label1;
-lv_obj_t *table;
 
-lv_obj_t *ui_timeLabel;
-lv_obj_t *ui_sdLogo;
-lv_obj_t *ui_mergeSwitch;
-lv_obj_t *ui_mergeButtonLabel;
-lv_obj_t *ui_filterSW;
-lv_obj_t *ui_filterBtnLbl;
-lv_obj_t *ui_main_scr_keyboard;
-lv_obj_t *ui_agentButton;
-lv_obj_t *ui_agentButtonLabel;
+/* filter panel global objects */
+// global obj
 lv_obj_t *ui____initial_actions0;
-
-void makeFilterPanel();
-void delFilterPanel(lv_obj_t *obj);
-
-void ui_event_mergeSwitch(lv_event_t *e);
-void ui_event_scanFilterSwitch(lv_event_t *e);
-void ui_event_mainScrNotifypanelClose2(lv_event_t *e);
-void ui_event_mainScrOffsetTextarea(lv_event_t *e);
-void ui_event_mainScrDataTextarea(lv_event_t *e);
-void ui_event_mainScrWriteData(lv_event_t *e);
-void ui_event_agentButton(lv_event_t *e);
+static lv_obj_t *ui_mainScrPanel; // this file only
 
 /* go to setup screen */
-void settings_icon_event_cb(lv_event_t *event)
+void ui_event_settings_icon(lv_event_t *event)
 {
-    lv_scr_load_anim(ui_setupScreen, LV_SCR_LOAD_ANIM_MOVE_LEFT, 200, 0, false);
+    ui_setupScreen_screen_init();
+    /* currently not deleting main screen bcz */
+    lv_scr_load_anim(ui_setupScreen, LV_SCR_LOAD_ANIM_MOVE_LEFT, 100, 0, false);
 }
-
-void ui_event_agentButton(lv_event_t *e)
+/* demo agent functionality */
+void ui_event_agent_btn(lv_event_t *e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
-    lv_obj_t *target = lv_event_get_target(e);
     if (event_code == LV_EVENT_CLICKED)
     {
-        _ui_screen_change(&ui_checkinOutScreen, LV_SCR_LOAD_ANIM_OVER_LEFT, 200, 0, &ui_checkin_checkoutScreen_screen_init);
-        _ui_screen_delete(&ui_mainScreen);
+        ui_checkin_checkoutScreen_screen_init();
+        __log("ui_checkin_checkoutScreen_screen_init()");
+        lv_scr_load_anim(ui_checkinOutScreen, LV_SCR_LOAD_ANIM_MOVE_LEFT, 50, 0, true);
     }
 }
 
-/* filter panel functionality */
-// global obj
-lv_obj_t *ui_mainScrPanel;
-lv_obj_t *ui_mainScrDataTextarea;
-lv_obj_t *ui_mainScrOffsetTextarea;
-
-void ui_event_scanFilterSwitch(lv_event_t *e)
+/* enable/disable scan filter */
+void ui_event_filter_switch(lv_event_t *e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     if (event_code == LV_EVENT_CLICKED)
@@ -150,24 +54,27 @@ void ui_event_scanFilterSwitch(lv_event_t *e)
         else
         {
             makeFilterPanel();
-            // lv_obj_move_background(table);
             lv_label_set_text(ui_filterBtnLbl, "F:1");
             filterOn = true;
         }
     }
 }
-void ui_event_mainScrWriteData(lv_event_t *e)
+
+/* write data and activate filter */
+void ui_event_filter_panel_write(lv_event_t *e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     if (event_code == LV_EVENT_CLICKED)
     {
         set_scan_filter(e);
         kb_del();
+        delFilterPanel(ui_mainScrPanel);
         // _ui_flag_modify(ui_main_scr_keyboard, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
     }
 }
 
-void ui_event_mainScrNotifypanelClose2(lv_event_t *e)
+/* closes filter panel and disable any filter */
+void ui_event_filter_panel_close(lv_event_t *e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     if (event_code == LV_EVENT_CLICKED)
@@ -175,7 +82,9 @@ void ui_event_mainScrNotifypanelClose2(lv_event_t *e)
         delFilterPanel(ui_mainScrPanel);
     }
 }
-void ui_event_mainScrOffsetTextarea(lv_event_t *e)
+
+/* filter panel offset textarea */
+void ui_event_filter_panel_offset_ta(lv_event_t *e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     if (event_code == LV_EVENT_CLICKED)
@@ -183,17 +92,20 @@ void ui_event_mainScrOffsetTextarea(lv_event_t *e)
         make_kb(ui_mainScrOffsetTextarea);
     }
 }
-void ui_event_mainScrDataTextarea(lv_event_t *e)
+
+/* filter panel data textarea */
+void ui_event_filter_panel_data_ta(lv_event_t *e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     if (event_code == LV_EVENT_CLICKED)
     {
-        lv_obj_move_background(table);
-        // lv_obj_move_foreground(ui_main_scr_keyboard);
+        lv_obj_move_background(epc_table);
         make_kb(ui_mainScrDataTextarea);
     }
 }
-void ui_event_mergeSwitch(lv_event_t *e)
+
+/* enables/disables inventory merge */
+void ui_event_merge_sw(lv_event_t *e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     if (event_code == LV_EVENT_CLICKED)
@@ -201,63 +113,96 @@ void ui_event_mergeSwitch(lv_event_t *e)
         merge_switch_click(e);
     }
 }
-void table_click_event(lv_event_t *e)
+
+/* press and hold epc col to access its memory */
+void ui_event_main_table_cb(lv_event_t *e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     if (event_code == LV_EVENT_LONG_PRESSED)
     {
-        lv_table_get_selected_cell(table, &row_, &col_);
-        printf("row: %u, col %u\n", row_, col_);
+        lv_table_get_selected_cell(epc_table, &row_, &col_);
+        __log("row: %u, col %u\n", row_, col_);
         if (row_ > 0 && col_ < 1)
         {
+
+            ui_memScreen_screen_init();
+            __log("ui_memScreen_screen_init()");
+            lv_scr_load_anim(ui_memScreen, LV_SCR_LOAD_ANIM_MOVE_LEFT, 50, 0, true);
             mem_screen(e);
-            _ui_screen_delete(&ui_mainScreen);
-            _ui_screen_change(&ui_memScreen, LV_SCR_LOAD_ANIM_MOVE_LEFT, 50, 0, &ui_memScreen_screen_init);
+        }
+        else
+        {
+            __log("Invalid cell");
         }
     }
 }
-///////////////////////////////////////////////////////////// SCREEN: ui_memScreen    ////////////////////////////////////////////////////////////
 
-////////////////////MEM SCREEN///////////////////////
+///////////////////////////////////////////////////////////// SCREEN: ui_memScreen    ///////////////////////////////////////////////////////////
+/* static prototypes */
+static void make_tdw_panel();
+static void make_ta_panel();
 
-void ui_event_memScrNotifypanelClose3(lv_event_t *e)
+static lv_obj_t *ui_tag_data_write_panel;
+lv_obj_t *ui_tdwp_dat_ta;
+
+static lv_obj_t *ui_tag_auth_panel;
+lv_obj_t *ui_tap_pass_ascii_ta;
+lv_obj_t *ui_tap_pass_hex_ta;
+
+/* make auth panel */
+void ui_event_tap_create(lv_event_t *e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     if (event_code == LV_EVENT_CLICKED)
     {
-        _ui_flag_modify(ui_authPanel, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
-        // del auth panel
+        make_ta_panel();
+        // create auth panel
     }
 }
-void ui_event_passASCIItxtarea(lv_event_t *e)
+/* del auth panel */
+void ui_event_tap_close(lv_event_t *e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     if (event_code == LV_EVENT_CLICKED)
     {
-        make_kb(ui_passASCIItxtarea);
+        if (lv_obj_is_valid(ui_tag_auth_panel))
+        {
+            lv_obj_del(ui_tag_auth_panel);
+            ui_tag_auth_panel = NULL;
+            __log("obj 'ui_tag_auth_panel' deleted");
+        }
+        else
+        {
+            __log("failed to del obj 'ui_tag_auth_panel' null");
+        }
     }
 }
-void ui_event_passASCIItxtareaVC(lv_event_t *e)
+void ui_event_tap_pass_ascii_ta(lv_event_t *e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
-    // printf("target = %s\n", target->parent);
-    fflush(stdout);
+    if (event_code == LV_EVENT_CLICKED)
+    {
+        make_kb(ui_tap_pass_ascii_ta);
+    }
+}
+void ui_event_tap_pass_ascii_ta_vc(lv_event_t *e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
     if (event_code == LV_EVENT_VALUE_CHANGED)
     {
         onChangeASCII(e);
-        // lv_event_send(ui_passHEXtxtarea, LV_EVENT_REFRESH, NULL);
     }
 }
-void ui_event_passHEXtxtarea(lv_event_t *e)
+void ui_event_tap_pass_hex_ta(lv_event_t *e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if (event_code == LV_EVENT_CLICKED)
     {
-        make_kb(ui_passHEXtxtarea);
+        make_kb(ui_tap_pass_hex_ta);
     }
 }
-void ui_event_passHEXtxtareaVC(lv_event_t *e)
+void ui_event_tap_pass_hex_ta_vc(lv_event_t *e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     if (event_code == LV_EVENT_VALUE_CHANGED)
@@ -266,42 +211,263 @@ void ui_event_passHEXtxtareaVC(lv_event_t *e)
     }
 }
 
-void table1_click_event(lv_event_t *e)
+void ui_event_tag_data_table(lv_event_t *e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     if (event_code == LV_EVENT_LONG_PRESSED)
     {
-        lv_table_get_selected_cell(table1, &row_, &col_);
-        _ui_flag_modify(ui_memScrPanel, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
-        // make panel
+        lv_table_get_selected_cell(tag_data_table, &row_, &col_);
+        make_tdw_panel();
     }
 }
-void ui_event_memscrNotifypanelClose(lv_event_t *e)
+void ui_event_tdwp_close(lv_event_t *e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     if (event_code == LV_EVENT_CLICKED)
     {
-        _ui_flag_modify(ui_memScrPanel, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
-        // panel del
+        if (lv_obj_is_valid(ui_tag_data_write_panel))
+        {
+            lv_obj_del(ui_tag_data_write_panel);
+            ui_tag_data_write_panel = NULL;
+            __log("obj 'ui_tag_data_write' deleted");
+        }
+        else
+        {
+            __log("failed to del obj 'ui_tag_data_write' null");
+        }
     }
 }
-void ui_event_memScrTextarea(lv_event_t *e)
+void ui_event_tdwp_data_ta(lv_event_t *e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     if (event_code == LV_EVENT_CLICKED)
     {
-        make_kb(ui_memScrTextarea);
+        make_kb(ui_tdwp_dat_ta);
     }
 }
-void ui_event_memScrWriteData(lv_event_t *e)
+void ui_event_tdwp_write_btn(lv_event_t *e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     if (event_code == LV_EVENT_CLICKED)
     {
-        mem_scr_write(e);
+        /* starts write task in uievents.cpp */
+        tdw_panel_write_cb(e);
+
+        if (lv_obj_is_valid(ui_tag_data_write_panel))
+        {
+            lv_obj_del(ui_tag_data_write_panel);
+            ui_tag_data_write_panel = NULL;
+            __log("obj 'ui_tag_data_write' deleted");
+        }
+        else
+        {
+            __log("failed to del obj 'ui_tag_data_write' null");
+        }
     }
 }
 
+static void make_tdw_panel()
+{
+    lv_obj_t *ui_tdwp_close;
+    lv_obj_t *ui_tdwp_close_label;
+    lv_obj_t *ui_tdwp_label;
+    lv_obj_t *ui_tdwp_data_write;
+    lv_obj_t *ui_tdwp_data_write_label;
+
+    if (!lv_obj_is_valid(ui_tag_data_write_panel))
+    {
+        ui_tag_data_write_panel = lv_obj_create(lv_scr_act());
+        lv_obj_set_width(ui_tag_data_write_panel, lv_pct(50));
+        lv_obj_set_height(ui_tag_data_write_panel, lv_pct(33));
+        lv_obj_set_x(ui_tag_data_write_panel, -3);
+        lv_obj_set_y(ui_tag_data_write_panel, -56);
+        lv_obj_set_align(ui_tag_data_write_panel, LV_ALIGN_CENTER);
+        // lv_obj_add_flag(ui_tag_data_write_panel, LV_OBJ_FLAG_HIDDEN);       /// Flags
+        lv_obj_clear_flag(ui_tag_data_write_panel, LV_OBJ_FLAG_SCROLLABLE); /// Flags
+        lv_obj_set_style_shadow_color(ui_tag_data_write_panel, lv_color_hex(0x655151), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_shadow_opa(ui_tag_data_write_panel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_shadow_width(ui_tag_data_write_panel, 30, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_shadow_spread(ui_tag_data_write_panel, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_shadow_ofs_x(ui_tag_data_write_panel, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_shadow_ofs_y(ui_tag_data_write_panel, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+        ui_tdwp_close = lv_btn_create(ui_tag_data_write_panel);
+        lv_obj_set_width(ui_tdwp_close, lv_pct(30));
+        lv_obj_set_height(ui_tdwp_close, lv_pct(40));
+        lv_obj_set_x(ui_tdwp_close, lv_pct(-43));
+        lv_obj_set_y(ui_tdwp_close, lv_pct(-53));
+        lv_obj_set_align(ui_tdwp_close, LV_ALIGN_CENTER);
+        lv_obj_add_flag(ui_tdwp_close, LV_OBJ_FLAG_SCROLL_ON_FOCUS); /// Flags
+        lv_obj_clear_flag(ui_tdwp_close, LV_OBJ_FLAG_SCROLLABLE);    /// Flags
+        lv_obj_set_style_radius(ui_tdwp_close, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+        ui_tdwp_close_label = lv_label_create(ui_tdwp_close);
+        lv_obj_set_width(ui_tdwp_close_label, LV_SIZE_CONTENT);  /// 1
+        lv_obj_set_height(ui_tdwp_close_label, LV_SIZE_CONTENT); /// 1
+        lv_obj_set_x(ui_tdwp_close_label, lv_pct(-5));
+        lv_obj_set_y(ui_tdwp_close_label, lv_pct(0));
+        lv_obj_set_align(ui_tdwp_close_label, LV_ALIGN_CENTER);
+        lv_label_set_text(ui_tdwp_close_label, "close");
+        lv_obj_set_style_text_font(ui_tdwp_close_label, &lv_font_montserrat_10, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+        ui_tdwp_label = lv_label_create(ui_tag_data_write_panel);
+        lv_obj_set_width(ui_tdwp_label, LV_SIZE_CONTENT);  /// 1
+        lv_obj_set_height(ui_tdwp_label, LV_SIZE_CONTENT); /// 1
+        lv_obj_set_x(ui_tdwp_label, -43);
+        lv_obj_set_y(ui_tdwp_label, -7);
+        lv_obj_set_align(ui_tdwp_label, LV_ALIGN_CENTER);
+        lv_label_set_text(ui_tdwp_label, "Enter data :");
+
+        ui_tdwp_dat_ta = lv_textarea_create(ui_tag_data_write_panel);
+        lv_obj_set_width(ui_tdwp_dat_ta, 80);
+        lv_obj_set_height(ui_tdwp_dat_ta, 29);
+        lv_obj_set_x(ui_tdwp_dat_ta, 30);
+        lv_obj_set_y(ui_tdwp_dat_ta, -6);
+        lv_obj_set_align(ui_tdwp_dat_ta, LV_ALIGN_CENTER);
+        lv_textarea_set_accepted_chars(ui_tdwp_dat_ta, "abcdefABCDEF0123456789");
+        lv_obj_clear_flag(ui_tdwp_dat_ta,
+                          LV_OBJ_FLAG_GESTURE_BUBBLE | LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC |
+                              LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_SCROLL_CHAIN); /// Flags
+
+        ui_tdwp_data_write = lv_btn_create(ui_tag_data_write_panel);
+        lv_obj_set_width(ui_tdwp_data_write, lv_pct(30));
+        lv_obj_set_height(ui_tdwp_data_write, lv_pct(40));
+        lv_obj_set_x(ui_tdwp_data_write, lv_pct(38));
+        lv_obj_set_y(ui_tdwp_data_write, lv_pct(47));
+        lv_obj_set_align(ui_tdwp_data_write, LV_ALIGN_CENTER);
+        lv_obj_add_flag(ui_tdwp_data_write, LV_OBJ_FLAG_SCROLL_ON_FOCUS); /// Flags
+        lv_obj_clear_flag(ui_tdwp_data_write, LV_OBJ_FLAG_SCROLLABLE);    /// Flags
+        lv_obj_set_style_radius(ui_tdwp_data_write, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+        ui_tdwp_data_write_label = lv_label_create(ui_tdwp_data_write);
+        lv_obj_set_width(ui_tdwp_data_write_label, LV_SIZE_CONTENT);  /// 1
+        lv_obj_set_height(ui_tdwp_data_write_label, LV_SIZE_CONTENT); /// 1
+        lv_obj_set_x(ui_tdwp_data_write_label, lv_pct(-5));
+        lv_obj_set_y(ui_tdwp_data_write_label, lv_pct(0));
+        lv_obj_set_align(ui_tdwp_data_write_label, LV_ALIGN_CENTER);
+        lv_label_set_text(ui_tdwp_data_write_label, "Write");
+        lv_obj_set_style_text_font(ui_tdwp_data_write_label, &lv_font_montserrat_10, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+        /* tag data write panel cb*/
+        lv_obj_add_event_cb(ui_tdwp_close, ui_event_tdwp_close, LV_EVENT_ALL, NULL);
+        lv_obj_add_event_cb(ui_tdwp_dat_ta, ui_event_tdwp_data_ta, LV_EVENT_ALL, NULL);
+        lv_obj_add_event_cb(ui_tdwp_data_write, ui_event_tdwp_write_btn, LV_EVENT_ALL, NULL);
+        __log("obj 'ui_tag_data_write_panel' created");
+    }
+    else
+    {
+        __log("obj 'ui_tag_data_write_panel' already exist");
+    }
+}
+
+static void make_ta_panel()
+{
+
+    lv_obj_t *ui_tap_close;
+    lv_obj_t *ui_tap_close_label;
+    lv_obj_t *ui_tap_pass_ascii_label;
+
+    lv_obj_t *ui_tap_pass_hex_label;
+    lv_obj_t *ui_pass_use_btn;
+    lv_obj_t *ui_passwrite_btn;
+    if (!lv_obj_is_valid(ui_tag_auth_panel))
+    {
+        /*AUTH PANEL*/
+        ui_tag_auth_panel = lv_obj_create(lv_scr_act());
+        lv_obj_set_width(ui_tag_auth_panel, lv_pct(65));
+        lv_obj_set_height(ui_tag_auth_panel, lv_pct(43));
+        lv_obj_set_x(ui_tag_auth_panel, -1);
+        lv_obj_set_y(ui_tag_auth_panel, -61);
+        lv_obj_set_align(ui_tag_auth_panel, LV_ALIGN_CENTER);
+        // lv_obj_add_flag(ui_tag_auth_panel, LV_OBJ_FLAG_HIDDEN);       /// Flags
+        lv_obj_clear_flag(ui_tag_auth_panel, LV_OBJ_FLAG_SCROLLABLE); /// Flags
+        lv_obj_set_style_radius(ui_tag_auth_panel, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_shadow_color(ui_tag_auth_panel, lv_color_hex(0x655151), LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_shadow_opa(ui_tag_auth_panel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_shadow_width(ui_tag_auth_panel, 30, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_shadow_spread(ui_tag_auth_panel, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_shadow_ofs_x(ui_tag_auth_panel, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_shadow_ofs_y(ui_tag_auth_panel, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+        ui_tap_close = lv_btn_create(ui_tag_auth_panel);
+        lv_obj_set_width(ui_tap_close, 44);
+        lv_obj_set_height(ui_tap_close, 22);
+        lv_obj_set_x(ui_tap_close, lv_pct(-44));
+        lv_obj_set_y(ui_tap_close, lv_pct(46));
+        lv_obj_set_align(ui_tap_close, LV_ALIGN_CENTER);
+        lv_obj_add_flag(ui_tap_close, LV_OBJ_FLAG_SCROLL_ON_FOCUS); /// Flags
+        lv_obj_clear_flag(ui_tap_close, LV_OBJ_FLAG_SCROLLABLE);    /// Flags
+        lv_obj_set_style_radius(ui_tap_close, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+        ui_tap_close_label = lv_label_create(ui_tap_close);
+        lv_obj_set_width(ui_tap_close_label, LV_SIZE_CONTENT);  /// 1
+        lv_obj_set_height(ui_tap_close_label, LV_SIZE_CONTENT); /// 1
+        lv_obj_set_x(ui_tap_close_label, lv_pct(-5));
+        lv_obj_set_y(ui_tap_close_label, lv_pct(0));
+        lv_obj_set_align(ui_tap_close_label, LV_ALIGN_CENTER);
+        lv_label_set_text(ui_tap_close_label, "Close");
+        lv_obj_set_style_text_font(ui_tap_close_label, &lv_font_montserrat_10, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+        ui_tap_pass_ascii_label = lv_label_create(ui_tag_auth_panel);
+        lv_obj_set_width(ui_tap_pass_ascii_label, LV_SIZE_CONTENT);  /// 1
+        lv_obj_set_height(ui_tap_pass_ascii_label, LV_SIZE_CONTENT); /// 1
+        lv_obj_set_x(ui_tap_pass_ascii_label, -55);
+        lv_obj_set_y(ui_tap_pass_ascii_label, -26);
+        lv_obj_set_align(ui_tap_pass_ascii_label, LV_ALIGN_CENTER);
+        lv_label_set_text(ui_tap_pass_ascii_label, "Pass. ASCII");
+        lv_obj_set_style_text_font(ui_tap_pass_ascii_label, &lv_font_montserrat_10, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+        ui_tap_pass_ascii_ta = lv_textarea_create(ui_tag_auth_panel);
+        lv_obj_set_width(ui_tap_pass_ascii_ta, 100);
+        lv_obj_set_height(ui_tap_pass_ascii_ta, 28);
+        lv_obj_set_x(ui_tap_pass_ascii_ta, lv_pct(17));
+        lv_obj_set_y(ui_tap_pass_ascii_ta, lv_pct(-40));
+        lv_obj_set_align(ui_tap_pass_ascii_ta, LV_ALIGN_CENTER);
+        lv_textarea_set_accepted_chars(ui_tap_pass_ascii_ta, " ABCDEFGHIJKLMNOPQRSTUVWXYZ_-.@#");
+        lv_obj_clear_flag(ui_tap_pass_ascii_ta,
+                          LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_GESTURE_BUBBLE | LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE |
+                              LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_SCROLL_CHAIN); /// Flags
+        lv_obj_set_style_text_font(ui_tap_pass_ascii_ta, &lv_font_montserrat_10, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_radius(ui_tap_pass_ascii_ta, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_textarea_set_max_length(ui_tap_pass_ascii_ta, 6);
+
+        ui_tap_pass_hex_ta = lv_textarea_create(ui_tag_auth_panel);
+        lv_obj_set_width(ui_tap_pass_hex_ta, 100);
+        lv_obj_set_height(ui_tap_pass_hex_ta, 28);
+        lv_obj_set_x(ui_tap_pass_hex_ta, lv_pct(17));
+        lv_obj_set_y(ui_tap_pass_hex_ta, lv_pct(4));
+        lv_obj_set_align(ui_tap_pass_hex_ta, LV_ALIGN_CENTER);
+        lv_textarea_set_accepted_chars(ui_tap_pass_hex_ta, "abcdefABCDEF0123456789");
+        lv_obj_clear_flag(ui_tap_pass_hex_ta,
+                          LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_GESTURE_BUBBLE | LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE |
+                              LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_SCROLL_CHAIN); /// Flags
+        lv_obj_set_style_text_font(ui_tap_pass_hex_ta, &lv_font_montserrat_10, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_style_radius(ui_tap_pass_hex_ta, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_textarea_set_max_length(ui_tap_pass_hex_ta, 8);
+
+        ui_tap_pass_hex_label = lv_label_create(ui_tag_auth_panel);
+        lv_obj_set_width(ui_tap_pass_hex_label, LV_SIZE_CONTENT);  /// 1
+        lv_obj_set_height(ui_tap_pass_hex_label, LV_SIZE_CONTENT); /// 1
+        lv_obj_set_x(ui_tap_pass_hex_label, -57);
+        lv_obj_set_y(ui_tap_pass_hex_label, 1);
+        lv_obj_set_align(ui_tap_pass_hex_label, LV_ALIGN_CENTER);
+        lv_label_set_text(ui_tap_pass_hex_label, "Pass. HEX");
+        lv_obj_set_style_text_font(ui_tap_pass_hex_label, &lv_font_montserrat_10, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+        /* tag auth panel cb*/
+
+        lv_obj_add_event_cb(ui_tap_close, ui_event_tap_close, LV_EVENT_ALL, NULL);
+        lv_obj_add_event_cb(ui_tap_pass_ascii_ta, ui_event_tap_pass_ascii_ta, LV_EVENT_ALL, NULL);
+        lv_obj_add_event_cb(ui_tap_pass_ascii_ta, ui_event_tap_pass_ascii_ta_vc, LV_EVENT_ALL, "asciiTextarea");
+        lv_obj_add_event_cb(ui_tap_pass_hex_ta, ui_event_tap_pass_hex_ta, LV_EVENT_ALL, NULL);
+        lv_obj_add_event_cb(ui_tap_pass_hex_ta, ui_event_tap_pass_hex_ta_vc, LV_EVENT_ALL, "hexTextarea");
+        __log("object 'ui_tag_auth_panel' is created");
+    }
+    else
+    {
+        __log("object 'ui_tag_auth_panel' already exist");
+    }
+}
 ///////////////////////////////////////////////////////////// SCREEN: ui_setupScreen  ////////////////////////////////////////////////////////////
 void ui_setupScreen_screen_init(void);
 lv_obj_t *tabview;
@@ -470,8 +636,9 @@ void tabview_slider_cb(lv_event_t *event)
 /* go to home */
 void ui_home_btn_cb(lv_event_t *event)
 {
+    ui_mainScreen_screen_init();
     lv_scr_load_anim(ui_mainScreen, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 200, 0, false);
-    __log("going home");
+    __log("main screen loaded");
 }
 
 void ui_init(void)
@@ -482,9 +649,12 @@ void ui_init(void)
     lv_disp_set_theme(dispp, theme);
     ui_mainScreen_screen_init();
     ui_setupScreen_screen_init();
-    ui_memScreen_screen_init();
+    __log("ui_mainScreen_screen_init()");
+    __log("ui_setupScreen_screen_init()");
+    // ui_memScreen_screen_init();
     ui____initial_actions0 = lv_obj_create(NULL);
     lv_disp_load_scr(ui_mainScreen);
+    __log("ui_mainScreen loaded.");
 }
 
 ////////////////////////////////////////////////////// GLOB METHODS AND RESOURCES////////////////////////////////////////////////
@@ -746,10 +916,10 @@ void makeFilterPanel()
         lv_obj_set_style_text_font(ui_notifyPanelclosebuttonlabel3, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
 
         /* event cb */
-        lv_obj_add_event_cb(ui_mainScrNotifypanelClose2, ui_event_mainScrNotifypanelClose2, LV_EVENT_ALL, NULL);
-        lv_obj_add_event_cb(ui_mainScrOffsetTextarea, ui_event_mainScrOffsetTextarea, LV_EVENT_ALL, NULL);
-        lv_obj_add_event_cb(ui_mainScrDataTextarea, ui_event_mainScrDataTextarea, LV_EVENT_ALL, NULL);
-        lv_obj_add_event_cb(ui_mainScrWriteData, ui_event_mainScrWriteData, LV_EVENT_ALL, NULL);
+        lv_obj_add_event_cb(ui_mainScrNotifypanelClose2, ui_event_filter_panel_close, LV_EVENT_ALL, NULL);
+        lv_obj_add_event_cb(ui_mainScrOffsetTextarea, ui_event_filter_panel_offset_ta, LV_EVENT_ALL, NULL);
+        lv_obj_add_event_cb(ui_mainScrDataTextarea, ui_event_filter_panel_data_ta, LV_EVENT_ALL, NULL);
+        lv_obj_add_event_cb(ui_mainScrWriteData, ui_event_filter_panel_write, LV_EVENT_ALL, NULL);
         __log("obj mainScrPanel is created.");
     }
     else

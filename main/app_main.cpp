@@ -89,16 +89,18 @@ extern "C" void app_main()
   else
   {
     lv_label_set_text_fmt(notif_msg, "Wifi status: %s", esp_err_to_name(wifi_connect_error));
-    ESP_LOGI(TAG, " Conn stat: %s ", esp_err_to_name(wifi_connect_error));
+    __log(" Conn stat: %s ", esp_err_to_name(wifi_connect_error));
   }
 
   /* Delete the event group when it's no longer needed
    *vEventGroupDelete(systemStatusEventGroup);
    */
 
-  vTaskDelay(2000 / portTICK_PERIOD_MS);
+  vTaskDelay(1200 / portTICK_PERIOD_MS);
 
   notif_panel_del();
+
+  /* config gpio for scn interrupt */
   gpioConfig();
 }
 
@@ -194,9 +196,9 @@ void gpioConfig()
 
         if (xSemaphoreTake(xGuiSemaphore, pdMS_TO_TICKS(100)) == pdTRUE)
         {
-            ESP_LOGI(TAG, "MUTEX GOT");
+            __log( "MUTEX GOT");
 
-            ESP_LOGI(TAG, "WIFI not connected.");
+            __log( "WIFI not connected.");
             xSemaphoreGive(xGuiSemaphore);
             vTaskDelay(1000 / portTICK_PERIOD_MS);
             if (xSemaphoreTake(xGuiSemaphore, pdMS_TO_TICKS(100)) == pdTRUE)

@@ -35,15 +35,15 @@ void reader_info_fetching_task(void *pVparameters)
         lv_obj_clear_state(ui_beepon_switch, LV_STATE_CHECKED);
 
     /* LOG */
-    ESP_LOGI(TAG, "device_id: %s", intToString(littleEndianValue));
-    ESP_LOGI(TAG, "VersionInfo: %s", charArrayToString(ri.VersionInfo, 2));
-    ESP_LOGI(TAG, "ScanTime: %s", unsignedCharToString(ri.ScanTime));
-    ESP_LOGI(TAG, "Power: %s", unsignedCharToString(ri.Power));
-    ESP_LOGI(TAG, "Antenna: %s", unsignedCharToString(ri.Antenna));
-    ESP_LOGI(TAG, "Protocol: %s", unsignedCharToString(ri.Protocol));
-    ESP_LOGI(TAG, "MinFreq: %s", intToString(ri.MinFreq));
-    ESP_LOGI(TAG, "MaxFreq: %s", intToString(ri.MaxFreq));
-    ESP_LOGI(TAG, "BeepOn: %s", unsignedCharToString(ri.BeepOn));
+    __log( "device_id: %s", intToString(littleEndianValue));
+    __log( "VersionInfo: %s", charArrayToString(ri.VersionInfo, 2));
+    __log( "ScanTime: %s", unsignedCharToString(ri.ScanTime));
+    __log( "Power: %s", unsignedCharToString(ri.Power));
+    __log( "Antenna: %s", unsignedCharToString(ri.Antenna));
+    __log( "Protocol: %s", unsignedCharToString(ri.Protocol));
+    __log( "MinFreq: %s", intToString(ri.MinFreq));
+    __log( "MaxFreq: %s", intToString(ri.MaxFreq));
+    __log( "BeepOn: %s", unsignedCharToString(ri.BeepOn));
 
     notif_msg_update("Done");
     vTaskDelay(300 / portTICK_PERIOD_MS);

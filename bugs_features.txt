@@ -5,6 +5,7 @@
 2.notif panel closse btn click crash [MAJOR]
 3.j4210 , scantime , scamtime *100 show, /100 write
 4.make fillter = false when user close filter panel without writing any data
+5.panic after going setuup screen 2nd time [MAJOR]
 
 
 
@@ -18,4 +19,12 @@
 4.PLACE ESP ERR CODE on notification                                       
 5.Implement roller on rfid tab-power, scan time.{minor}
 6.
+
+-------------------------------------------------OTHERS-------------------------------------------------
+        DESC                                                             STATUS
+--------------------------------------------------------------------------------------------------------
+1. move style definations in mainscreen
+
+
+
 

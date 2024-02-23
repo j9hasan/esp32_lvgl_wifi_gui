@@ -6,7 +6,6 @@ SET(SOURCES
     ui.c
     ui_events.cpp
     ui_helpers.c
-
     )
 idf_component_register(SRCS ${SOURCES}
                        INCLUDE_DIRS .

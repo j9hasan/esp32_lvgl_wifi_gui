@@ -37,7 +37,7 @@ extern "C"
     void test_btn_pressed(lv_event_t *e);
     void test_btn1_pressed(lv_event_t *e);
     void test_btn2_pressed(lv_event_t *e);
-    void mem_scr_write(lv_event_t *e);
+    void tdw_panel_write_cb(lv_event_t *e);
     void onChangeASCII(lv_event_t *e);
     void onChangeHEX(lv_event_t *e);
     void pass_write(lv_event_t *e);

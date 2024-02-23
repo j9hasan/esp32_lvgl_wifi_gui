@@ -86,15 +86,27 @@ TaskHandle_t tcp_client_task_handler = NULL;
 static const char *TAG = "example";
 // const char *payload = "{\"key\":\"1\",\"reserved\":\"strss\"}";
 static void tcp_client_task(void *pvParameters);
+
+/* glob */
+lv_obj_t *ui_checkinOutScreen;
+lv_obj_t *ui_checkinOutStatusLabel;
 void ui_checkin_checkoutScreen_screen_init(void)
 {
+    lv_obj_t *ui_leftContainer;
+    lv_obj_t *ui_demoImg;
+    lv_obj_t *ui_checkinOutScreenImgContainer;
+    lv_obj_t *ui_timeLabelUiAgentCheckin;
+
+    lv_obj_t *ui_distributorContainer;
+    lv_obj_t *ui_distributorLabel;
+
     if (tcp_client_task_handler == NULL)
     {
         xTaskCreate(tcp_client_task, "tcp_client", 4096, NULL, 5, &tcp_client_task_handler);
     }
     else
     {
-        ESP_LOGI(TAG, "tcp client task already running");
+        __log("tcp client task already running");
     }
 
     int numFiles;
@@ -113,7 +125,7 @@ void ui_checkin_checkoutScreen_screen_init(void)
     lv_obj_clear_flag(ui_checkinOutScreen, LV_OBJ_FLAG_SCROLLABLE); /// Flags
     lv_obj_set_style_bg_color(ui_checkinOutScreen, lv_color_hex(0xB4E2FF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_checkinOutScreen, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    ESP_LOGI(TAG, "path: %s", concatenatedPath);
+    __log("path: %s", concatenatedPath);
 
     // ui_demoImg = lv_img_create(ui_checkinOutScreen);
     // lv_img_set_src(ui_demoImg, concatenatedPath);
@@ -206,7 +218,7 @@ static void tcp_client_task(void *pvParameters)
         tcp_client_task_handler = NULL;
         vTaskDelete(tcp_client_task_handler);
     }
-    ESP_LOGI(TAG, "Socket created, connecting to %s:%s", host_ip, PORT);
+    __log("Socket created, connecting to %s:%s", host_ip, PORT);
 
     int err = connect(sock, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr_in6));
     if (err != 0)
@@ -215,7 +227,7 @@ static void tcp_client_task(void *pvParameters)
         tcp_client_task_handler = NULL;
         vTaskDelete(tcp_client_task_handler);
     }
-    ESP_LOGI(TAG, "Successfully connected");
+    __log("Successfully connected");
     /*ready the json string*/
 
     // MyStruct1 myData = {1, "John", 123.45};
@@ -245,8 +257,8 @@ static void tcp_client_task(void *pvParameters)
         else
         {
             rx_buffer[len] = 0; // Null-terminate whatever we received and treat like a string
-            ESP_LOGI(TAG, "Received %d bytes from %s:", len, host_ip);
-            ESP_LOGI(TAG, "%s", rx_buffer);
+            __log("Received %d bytes from %s:", len, host_ip);
+            __log("%s", rx_buffer);
 
             // Add more debug logs if needed to check the flow
 
@@ -254,8 +266,8 @@ static void tcp_client_task(void *pvParameters)
             lv_obj_set_width(ui_checkinOutStatusLabel, 250);
             lv_label_set_long_mode(ui_checkinOutStatusLabel, LV_LABEL_LONG_SCROLL_CIRCULAR);
             // MyStruct1 parsedData = parseJson(rx_buffer);
-            // ESP_LOGI(TAG, "id: %d name: %s value: %f", parsedData.id, parsedData.name, parsedData.value);
-            ESP_LOGI(TAG, "data: %s ", rx_buffer);
+            // __log( "id: %d name: %s value: %f", parsedData.id, parsedData.name, parsedData.value);
+            __log("data: %s ", rx_buffer);
             // vTaskDelay(5000 / portTICK_PERIOD_MS);
         }
         vTaskDelay(20 / portTICK_PERIOD_MS);

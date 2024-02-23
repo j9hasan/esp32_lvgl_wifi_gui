@@ -5,7 +5,6 @@
 #include "ui.h"
 #include "helper_func.h"
 #include "system_status.h"
-// #define LOG_LOCAL_LEVEL ESP_LOG_WARN
 #include "esp_log.h"
 
 static int s_retry_num = 0;
@@ -26,13 +25,13 @@ static void event_handler(void *arg, esp_event_base_t event_base, int32_t event_
 
     if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START)
     {
-        ESP_LOGI(TAG, "event id: WIFI_EVENT_STA_START ");
+        __log("event id: WIFI_EVENT_STA_START ");
         wifi_connect_error = esp_wifi_connect();
-        ESP_LOGI(TAG, " Conn stat: %s ", esp_err_to_name(wifi_connect_error));
+        __log(" Conn stat: %s ", esp_err_to_name(wifi_connect_error));
     }
     else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_CONNECTED)
     {
-        ESP_LOGI(TAG, "WIFI connected to SSID: %s, BSSID: " MACSTR ", channel %d, authmode %u", wesc.ssid, MAC2STR(wesc.bssid), wesc.channel, wesc.authmode);
+        // __log("WIFI connected to SSID: %s, BSSID: " MACSTR" );
 
         ESP_LOGW(TAG, "Setting wifi connected bit, now: %d", WIFI_CONNECTED_BIT);
 
@@ -52,24 +51,21 @@ static void event_handler(void *arg, esp_event_base_t event_base, int32_t event_
 #if WIFI_STATUS_PRINT
 
 #endif
-
-        // lv_obj_add_flag(ui_wifi_scan_btn, LV_OBJ_FLAG_CLICKABLE);
-        // lv_obj_add_flag(ui_wifi_conn_btn, LV_OBJ_FLAG_CLICKABLE);
     }
     else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED)
     {
 
-        ESP_LOGI(TAG, "WIFI disconnected from %s, reason %d, rssi %d", wesd.ssid, wesd.reason, wesd.rssi);
+        __log("WIFI disconnected ");
 
         if (s_retry_num < WIFI_MAX_RETRY)
         {
             wifi_connect_error = esp_wifi_connect();
             s_retry_num++;
-            ESP_LOGI(TAG, "retrying to connect to the AP");
+            __log("retrying to connect to the AP");
         }
         else
         {
-            ESP_LOGI(TAG, "connection failed. setting:s_wifi_event_group = WIFI_FAIL_BIT ");
+            __log("connection failed. setting:s_wifi_event_group = WIFI_FAIL_BIT ");
 
             ESP_LOGW(TAG, "Setting wifi fail bit, now: %d", WIFI_FAIL_BIT);
 
@@ -77,7 +73,7 @@ static void event_handler(void *arg, esp_event_base_t event_base, int32_t event_
 
             ESP_LOGW(TAG, "After setting, now: %d", WIFI_CONNECTED_BIT);
         }
-        ESP_LOGI(TAG, "connect to the AP fail");
+        __log("connect to the AP fail");
 
         lv_label_set_text(ui_wifiIcon, "");
 #if WIFI_STATUS_PRINT
@@ -87,12 +83,12 @@ static void event_handler(void *arg, esp_event_base_t event_base, int32_t event_
         // lv_obj_add_flag(ui_wifi_scan_btn, LV_OBJ_FLAG_CLICKABLE);
         // lv_obj_add_flag(ui_wifi_conn_btn, LV_OBJ_FLAG_CLICKABLE);
 
-        ESP_LOGI(TAG, "connected bit 0");
+        __log("connected bit 0");
     }
     else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP)
     {
         ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
-        ESP_LOGI(TAG, "got ip:" IPSTR, IP2STR(&event->ip_info.ip));
+        __log("got ip:" IPSTR, IP2STR(&event->ip_info.ip));
 
         // Assuming IPv4, 16 characters maximum
         char ip_str[16];
@@ -139,7 +135,7 @@ void wifi_init_sta(void)
         ESP_LOGE(TAG, "Error occurred: %s", esp_err_to_name(err));
     }
 
-    ESP_LOGI(TAG, "wifi_init_sta finished.");
+    __log("wifi_init_sta finished.");
 
     /* The event will not be processed after unregister */
     // ESP_ERROR_CHECK(esp_event_handler_instance_unregister(IP_EVENT, IP_EVENT_STA_GOT_IP, instance_got_ip));
@@ -171,9 +167,9 @@ void wifi_conn_task(void *pvParameters)
 
     // lv_arc_set_value(spinner, 20);
 
-    // ESP_LOGI(TAG, "temp_ssid: %s",temp_ssid);
-    // ESP_LOGI(TAG, "temp_pass: %s",temp_pass);
-    // ESP_LOGI(TAG, "wifi connect task");
+    // __log( "temp_ssid: %s",temp_ssid);
+    // __log( "temp_pass: %s",temp_pass);
+    // __log( "wifi connect task");
 
     ESP_ERROR_CHECK(esp_wifi_stop());
     wifi_config_t wifi_config = {
@@ -207,7 +203,7 @@ void wifi_conn_task(void *pvParameters)
 
     if (bits & WIFI_CONNECTED_BIT)
     {
-        ESP_LOGI(TAG, "Wifi connected");
+        __log("Wifi connected");
         wnp_update("Connected.");
         set_angle(spinner, 100);
         vTaskDelay(300 / portTICK_PERIOD_MS);
@@ -245,7 +241,7 @@ void wifi_scan_task(void *pvParameters)
     lv_obj_clear_flag(ui_wifi_conn_btn, LV_OBJ_FLAG_CLICKABLE);
 
     static const char *TAG = "wifi scan";
-    ESP_LOGI(TAG, "wifi AP scan");
+    __log("wifi AP scan");
 
     set_angle(spinner, 20);
     vTaskDelay(100 / portTICK_PERIOD_MS);
@@ -257,17 +253,17 @@ void wifi_scan_task(void *pvParameters)
 
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
     ESP_ERROR_CHECK(esp_wifi_start());
-    ESP_LOGI(TAG, "scan started");
+    __log("scan started");
 
     set_angle(spinner, 40);
     // vTaskDelay(200 / portTICK_PERIOD_MS);
 
     esp_wifi_scan_start(NULL, true);
 
-    // ESP_LOGI(TAG, "Max AP number ap_info can hold = %u", number);
+    // __log( "Max AP number ap_info can hold = %u", number);
     ESP_ERROR_CHECK(esp_wifi_scan_get_ap_records(&number, ap_info));
     ESP_ERROR_CHECK(esp_wifi_scan_get_ap_num(&ap_count));
-    ESP_LOGI(TAG, "Total APs scanned = %u, actual AP number ap_info holds = %u", ap_count, number);
+    __log("Total APs scanned = %u, actual AP number ap_info holds = %u", ap_count, number);
 
     set_angle(spinner, 65);
     vTaskDelay(200 / portTICK_PERIOD_MS);
@@ -275,9 +271,9 @@ void wifi_scan_task(void *pvParameters)
     memset(wifi_dd_list, 0, sizeof(wifi_dd_list));
     for (int i = 0; i < number; i++)
     {
-        // ESP_LOGI(TAG, "SSID \t\t%s", ap_info[i].ssid);
-        // ESP_LOGI(TAG, "RSSI \t\t%d", ap_info[i].rssi);
-        // ESP_LOGI(TAG, "Channel \t\t%d", ap_info[i].primary);
+        // __log( "SSID \t\t%s", ap_info[i].ssid);
+        // __log( "RSSI \t\t%d", ap_info[i].rssi);
+        // __log( "Channel \t\t%d", ap_info[i].primary);
         strncat(wifi_dd_list, (char *)ap_info[i].ssid, WIFI_SSID_BUFFER_SIZE);
         if (i < (number - 1))
         {
@@ -286,7 +282,7 @@ void wifi_scan_task(void *pvParameters)
     }
     set_angle(spinner, 85);
     vTaskDelay(350 / portTICK_PERIOD_MS);
-    // ESP_LOGI(TAG, "WiFi DD List:\n%s", wifi_dd_list);
+    // __log( "WiFi DD List:\n%s", wifi_dd_list);
     wnp_update("Scan finished.");
     lv_dropdown_set_options(ui_wifi_ssid_dd, wifi_dd_list);
 
@@ -315,7 +311,7 @@ void display_time(void *pvParameters)
 void time_sync_notification_cb(struct timeval *tv)
 {
     const char *TAG = "time ev notification";
-    ESP_LOGI(TAG, "Notification of a time synchronization event");
+    __log("Notification of a time synchronization event");
     xTaskCreatePinnedToCore(display_time,
                             "display time",
                             GET_DATE_TIME_TASK_STACK_SIZE,
@@ -338,7 +334,7 @@ void Get_current_date_time()
     localtime_r(&now, &timeinfo);
     // strftime(strftime_buf, sizeof(strftime_buf), "%c", &timeinfo);
     strftime(strftime_buf, sizeof(strftime_buf), "%H:%M:%S", &timeinfo);
-    // ESP_LOGI(TAG, "The current date/time in DHAKA is: %s", strftime_buf);
+    // __log( "The current date/time in DHAKA is: %s", strftime_buf);
     // strcpy(date_time, strftime_buf);
     // lv_label_set_text_fmt(ui_timeLabel, "%s", strftime_buf);
     // lv_label_set_text_fmt(ui_timeLabelUiAgentArmory, "%s", strftime_buf);
@@ -347,7 +343,7 @@ void Get_current_date_time()
 static void initialize_sntp(void)
 {
     const char *TAG = "initialize_sntp";
-    ESP_LOGI(TAG, "Initializing SNTP");
+    __log("Initializing SNTP");
     sntp_setoperatingmode(SNTP_OPMODE_POLL);
     sntp_setservername(0, "pool.ntp.org");
     sntp_set_time_sync_notification_cb(time_sync_notification_cb);
@@ -367,7 +363,7 @@ static void obtain_time(void)
     const int retry_count = 10;
     while (sntp_get_sync_status() == SNTP_SYNC_STATUS_RESET && ++retry < retry_count)
     {
-        ESP_LOGI(TAG, "Waiting for system time to be set... (%d/%d)", retry, retry_count);
+        __log("Waiting for system time to be set... (%d/%d)", retry, retry_count);
         vTaskDelay(2000 / portTICK_PERIOD_MS);
     }
     time(&now);
@@ -383,7 +379,7 @@ void Set_SystemTime_SNTP()
     // Is time set? If not, tm_year will be (1970 - 1900).
     if (timeinfo.tm_year < (2016 - 1900))
     {
-        ESP_LOGI(TAG, "Time is not set yet. Connecting to WiFi and getting time over NTP.");
+        __log("Time is not set yet. Connecting to WiFi and getting time over NTP.");
         obtain_time();
         // update 'now' variable with current time
         time(&now);
