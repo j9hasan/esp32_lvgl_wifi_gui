@@ -7,19 +7,25 @@
 #include "inventory.h"
 #include "system_status.h"
 #include "sd_fat.h"
+#include <esp_sleep.h>
 
 /* Defines */
 #define LV_TICK_PERIOD_MS 10
-#define TAG "app_main"
 SemaphoreHandle_t xGuiSemaphore;
+/* sleep timer */
+#define SLEEP_TIME_MINUTES 1
+#define TIMER_INTERVAL_MS (SLEEP_TIME_MINUTES * 60 * 1000)
+uint32_t timer_interval = SLEEP_TIME_MINUTES * 20 * 1000;
 
 /* Prototypes */
+static void sleep_timer_callback(TimerHandle_t xTimer);
+static void init_sleep_timer();
 static void lv_tick_task(void *arg);
 static void ui_task(void *pvParameter);
 static void gpioConfig();
 
 /* Task handler */
-TaskHandle_t GUI_TASK_HANDLE = NULL;
+TaskHandle_t GUI_TASK_HANDLE = NULL, sleep_timer_handler;
 
 /* error handling */
 esp_err_t err;
@@ -35,12 +41,12 @@ extern "C" void app_main()
   }
   ESP_ERROR_CHECK(err);
 
-  /* Create and start a periodic timer interrupt to call lv_tick_inc */
-  // const esp_timer_create_args_t periodic_timer_args = {
-  //     .callback = &lv_tick_task, .name = "periodic_gui"};
-  // esp_timer_handle_t periodic_timer;
-  // ESP_ERROR_CHECK(esp_timer_create(&periodic_timer_args, &periodic_timer));
-  // ESP_ERROR_CHECK(esp_timer_start_periodic(periodic_timer, LV_TICK_PERIOD_MS * 1000));
+  /* enable wake up sources */
+  esp_sleep_enable_ext0_wakeup(GPIO_NUM_36, 0);
+  esp_sleep_enable_ext1_wakeup((1ULL << GPIO_NUM_4), ESP_EXT1_WAKEUP_ALL_LOW);
+
+  /* initialize sleep timer */
+  init_sleep_timer();
 
   /* Start system status event */
   systemStatusEventGroup = xEventGroupCreate();
@@ -92,9 +98,8 @@ extern "C" void app_main()
     __log(" Conn stat: %s ", esp_err_to_name(wifi_connect_error));
   }
 
-  /* Delete the event group when it's no longer needed
-   *vEventGroupDelete(systemStatusEventGroup);
-   */
+  /* Delete the event group when it's no longer needed  */
+  // vEventGroupDelete(systemStatusEventGroup);
 
   vTaskDelay(1200 / portTICK_PERIOD_MS);
 
@@ -190,6 +195,27 @@ void gpioConfig()
   gpio_isr_handler_add(BUTTON_PIN, button_isr_handler, (void *)BUTTON_PIN);
 }
 
+/* sleep timer function definations */
+static void sleep_timer_callback(TimerHandle_t xTimer)
+{
+  // Set GPIO 21 low
+  gpio_set_level(GPIO_NUM_21, 0);
+  __log("Going to light sleep after %u minutes.", SLEEP_TIME_MINUTES);
+  // xTimerChangePeriod(xTimer, pdMS_TO_TICKS(timer_interval), 100);
+  esp_light_sleep_start();
+  // esp_deep_sleep_start();
+  gpio_set_level(GPIO_NUM_21, 1);
+}
+
+static void init_sleep_timer()
+{
+  sleep_timer_handler = xTimerCreate("SleepTimer", pdMS_TO_TICKS(TIMER_INTERVAL_MS), pdTRUE, (void *)0, sleep_timer_callback);
+
+  if (sleep_timer_handler != NULL)
+  {
+    xTimerStart(sleep_timer_handler, 0);
+  }
+}
 // MUTEX
 /*
 
