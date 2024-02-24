@@ -66,8 +66,8 @@ extern "C" void app_main()
   /* init sd card */
   lv_label_set_text(notif_panel_title, "Init: SD card");
   lv_label_set_text(notif_msg, "Getting sd status...");
-  vTaskDelay(700 / portTICK_PERIOD_MS);
   initSD();
+  vTaskDelay(700 / portTICK_PERIOD_MS);
   lv_label_set_text_fmt(notif_msg, "SD status: %s", esp_err_to_name(sd_card_error));
   vTaskDelay(1000 / portTICK_PERIOD_MS);
 

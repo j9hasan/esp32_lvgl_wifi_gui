@@ -1,9 +1,11 @@
 
 #include "../ui.h"
+#include "system_status.h"
 
 /* global objects */
 lv_obj_t *ui_mainScreen;
 lv_obj_t *ui_wifiIcon;
+lv_obj_t *ui_sd_icon;
 lv_obj_t *epc_table;
 lv_obj_t *ui_timeLabel;
 lv_obj_t *ui_sdLogo;
@@ -17,32 +19,44 @@ lv_obj_t *ui_mainScrOffsetTextarea;
 
 void ui_mainScreen_screen_init(void)
 {
+    __log("ui_mainScreen_screen_init()");
     /* local */
     lv_obj_t *ui_iconContainer;
     lv_obj_t *ui_bottomContainer;
     lv_obj_t *ui_settingsIcon;
     lv_obj_t *ui_agentButtonLabel;
+
     ui_mainScreen = lv_obj_create(NULL);
     lv_obj_clear_flag(ui_mainScreen, LV_OBJ_FLAG_SCROLLABLE);
 
     /* container for icons at top */
+    static lv_style_t icontainer_style;
+    lv_style_init(&icontainer_style);
+    lv_style_set_width(&icontainer_style, lv_pct(100));
+    lv_style_set_height(&icontainer_style, lv_pct(10));
+    lv_style_set_bg_color(&icontainer_style, lv_color_hex(0xB4E2FF));
+    lv_style_set_border_width(&icontainer_style, 0);
+    lv_style_set_pad_all(&icontainer_style, 2);
+    lv_style_set_radius(&icontainer_style, 0);
+    lv_style_set_border_width(&icontainer_style, 0);
+
     ui_iconContainer = lv_obj_create(ui_mainScreen);
     lv_obj_set_align(ui_iconContainer, LV_ALIGN_TOP_MID);
     lv_obj_clear_flag(ui_iconContainer, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_set_width(ui_iconContainer, lv_pct(100));
-    lv_obj_set_height(ui_iconContainer, lv_pct(10));
-    lv_obj_set_style_bg_color(ui_iconContainer, lv_color_hex(0xB4E2FF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_width(ui_iconContainer, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_all(ui_iconContainer, 2, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_radius(ui_iconContainer, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_width(ui_iconContainer, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_add_style(ui_iconContainer, &icontainer_style, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     /* icons */
     ui_wifiIcon = lv_label_create(ui_iconContainer);
     lv_label_set_text(ui_wifiIcon, "");
-    lv_obj_align(ui_wifiIcon, LV_ALIGN_TOP_LEFT, 0, 0);
+    lv_obj_align(ui_wifiIcon, LV_ALIGN_TOP_LEFT, 5, 0);
     lv_obj_add_flag(ui_wifiIcon, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_set_style_text_font(ui_wifiIcon, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_sd_icon = lv_label_create(ui_iconContainer);
+    lv_label_set_text(ui_sd_icon, "");
+    lv_obj_align(ui_sd_icon, LV_ALIGN_TOP_LEFT, 30, 0);
+    lv_obj_add_flag(ui_sd_icon, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_set_style_text_font(ui_sd_icon, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_settingsIcon = lv_label_create(ui_iconContainer);
     lv_label_set_text(ui_settingsIcon, LV_SYMBOL_SETTINGS);
@@ -54,13 +68,8 @@ void ui_mainScreen_screen_init(void)
     ui_bottomContainer = lv_obj_create(ui_mainScreen);
     lv_obj_set_align(ui_bottomContainer, LV_ALIGN_BOTTOM_MID);
     lv_obj_clear_flag(ui_bottomContainer, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_set_width(ui_bottomContainer, lv_pct(100));
-    lv_obj_set_height(ui_bottomContainer, lv_pct(9));
-    lv_obj_set_style_bg_color(ui_bottomContainer, lv_color_hex(0xB4E2FF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_width(ui_bottomContainer, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_all(ui_bottomContainer, 2, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_radius(ui_bottomContainer, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_width(ui_bottomContainer, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_height(ui_bottomContainer, lv_pct(8));
+    lv_obj_add_style(ui_bottomContainer, &icontainer_style, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_timeLabel = lv_label_create(ui_mainScreen);
     lv_obj_set_width(ui_timeLabel, LV_SIZE_CONTENT);  /// 1

@@ -1,6 +1,7 @@
 
 #include "../ui.h"
 #include "shared_task.h"
+#include "system_status.h"
 
 /* button style */
 lv_style_t btn_style;
@@ -8,6 +9,7 @@ lv_style_t btn_label_style;
 
 void ui_setupScreen_screen_init(void)
 {
+    __log("ui_setupScreen_screen_init()");
     uint16_t btn_radius = 8;
     lv_obj_t *label;
     lv_obj_t *ui_home_btn;
@@ -340,8 +342,8 @@ void ui_setupScreen_screen_init(void)
     lv_obj_set_x(ui_wifi_scan_btn, -107);
     lv_obj_set_y(ui_wifi_scan_btn, 44);
     lv_obj_set_align(ui_wifi_scan_btn, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_wifi_scan_btn, LV_OBJ_FLAG_SCROLL_ON_FOCUS); /// Flags
-    lv_obj_clear_flag(ui_wifi_scan_btn, LV_OBJ_FLAG_SCROLLABLE);    /// Flags
+    lv_obj_add_flag(ui_wifi_scan_btn, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
+    lv_obj_clear_flag(ui_wifi_scan_btn, LV_OBJ_FLAG_SCROLLABLE);
 
     lv_obj_add_style(ui_wifi_scan_btn, &btn_style, LV_PART_MAIN | LV_STATE_DEFAULT);
 

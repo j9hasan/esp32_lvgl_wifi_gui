@@ -162,7 +162,8 @@ void initSD()
         }
     }
     __log("Filesystem mounted");
-
+    /* set icon mainscreen*/
+    lv_label_set_text(ui_sd_icon, LV_SYMBOL_SD_CARD);
     // Card has been initialized, print its properties
     sdmmc_card_print_info(stdout, card);
     // deinitialize the bus after all devices are removed

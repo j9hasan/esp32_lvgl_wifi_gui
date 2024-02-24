@@ -4,6 +4,7 @@
 #include "ui_helpers.h"
 #include "shared_task.h"
 #include "wifi_app.h"
+#include "system_status.h"
 
 #if LV_COLOR_DEPTH != 16
 #error "LV_COLOR_DEPTH should be 16bit to match SquareLine Studio's settings"
@@ -24,7 +25,7 @@ static lv_obj_t *ui_mainScrPanel; // this file only
 /* go to setup screen */
 void ui_event_settings_icon(lv_event_t *event)
 {
-    ui_setupScreen_screen_init();
+    // ui_setupScreen_screen_init();
     /* currently not deleting main screen bcz */
     lv_scr_load_anim(ui_setupScreen, LV_SCR_LOAD_ANIM_MOVE_LEFT, 100, 0, false);
 }
@@ -126,8 +127,7 @@ void ui_event_main_table_cb(lv_event_t *e)
         {
 
             ui_memScreen_screen_init();
-            __log("ui_memScreen_screen_init()");
-            lv_scr_load_anim(ui_memScreen, LV_SCR_LOAD_ANIM_MOVE_LEFT, 50, 0, true);
+            lv_scr_load_anim(ui_memScreen, LV_SCR_LOAD_ANIM_MOVE_LEFT, 100, 0, false);
             mem_screen(e);
         }
         else
@@ -266,6 +266,12 @@ void ui_event_tdwp_write_btn(lv_event_t *e)
     }
 }
 
+void ui_home2_btn_cb(lv_event_t *event)
+{
+    // ui_mainScreen_screen_init();
+    lv_scr_load_anim(ui_mainScreen, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 100, 0, true);
+}
+
 static void make_tdw_panel()
 {
     lv_obj_t *ui_tdwp_close;
@@ -292,23 +298,14 @@ static void make_tdw_panel()
         lv_obj_set_style_shadow_ofs_y(ui_tag_data_write_panel, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
 
         ui_tdwp_close = lv_btn_create(ui_tag_data_write_panel);
-        lv_obj_set_width(ui_tdwp_close, lv_pct(30));
-        lv_obj_set_height(ui_tdwp_close, lv_pct(40));
-        lv_obj_set_x(ui_tdwp_close, lv_pct(-43));
-        lv_obj_set_y(ui_tdwp_close, lv_pct(-53));
-        lv_obj_set_align(ui_tdwp_close, LV_ALIGN_CENTER);
-        lv_obj_add_flag(ui_tdwp_close, LV_OBJ_FLAG_SCROLL_ON_FOCUS); /// Flags
-        lv_obj_clear_flag(ui_tdwp_close, LV_OBJ_FLAG_SCROLLABLE);    /// Flags
-        lv_obj_set_style_radius(ui_tdwp_close, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_height(ui_tdwp_close, 25);
+        lv_obj_set_width(ui_tdwp_close, 25);
+        lv_obj_align(ui_tdwp_close, LV_ALIGN_OUT_TOP_LEFT, 0, 0);
+        lv_obj_set_ext_click_area(ui_tdwp_close, 10);
 
         ui_tdwp_close_label = lv_label_create(ui_tdwp_close);
-        lv_obj_set_width(ui_tdwp_close_label, LV_SIZE_CONTENT);  /// 1
-        lv_obj_set_height(ui_tdwp_close_label, LV_SIZE_CONTENT); /// 1
-        lv_obj_set_x(ui_tdwp_close_label, lv_pct(-5));
-        lv_obj_set_y(ui_tdwp_close_label, lv_pct(0));
-        lv_obj_set_align(ui_tdwp_close_label, LV_ALIGN_CENTER);
-        lv_label_set_text(ui_tdwp_close_label, "close");
-        lv_obj_set_style_text_font(ui_tdwp_close_label, &lv_font_montserrat_10, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_align(ui_tdwp_close_label, LV_ALIGN_CENTER, 0, 0);
+        lv_label_set_text(ui_tdwp_close_label, LV_SYMBOL_CLOSE);
 
         ui_tdwp_label = lv_label_create(ui_tag_data_write_panel);
         lv_obj_set_width(ui_tdwp_label, LV_SIZE_CONTENT);  /// 1
@@ -390,23 +387,14 @@ static void make_ta_panel()
         lv_obj_set_style_shadow_ofs_y(ui_tag_auth_panel, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
 
         ui_tap_close = lv_btn_create(ui_tag_auth_panel);
-        lv_obj_set_width(ui_tap_close, 44);
-        lv_obj_set_height(ui_tap_close, 22);
-        lv_obj_set_x(ui_tap_close, lv_pct(-44));
-        lv_obj_set_y(ui_tap_close, lv_pct(46));
-        lv_obj_set_align(ui_tap_close, LV_ALIGN_CENTER);
-        lv_obj_add_flag(ui_tap_close, LV_OBJ_FLAG_SCROLL_ON_FOCUS); /// Flags
-        lv_obj_clear_flag(ui_tap_close, LV_OBJ_FLAG_SCROLLABLE);    /// Flags
-        lv_obj_set_style_radius(ui_tap_close, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_set_height(ui_tap_close, 25);
+        lv_obj_set_width(ui_tap_close, 25);
+        lv_obj_align(ui_tap_close, LV_ALIGN_OUT_TOP_LEFT, 0, 0);
+        lv_obj_set_ext_click_area(ui_tap_close, 10);
 
         ui_tap_close_label = lv_label_create(ui_tap_close);
-        lv_obj_set_width(ui_tap_close_label, LV_SIZE_CONTENT);  /// 1
-        lv_obj_set_height(ui_tap_close_label, LV_SIZE_CONTENT); /// 1
-        lv_obj_set_x(ui_tap_close_label, lv_pct(-5));
-        lv_obj_set_y(ui_tap_close_label, lv_pct(0));
-        lv_obj_set_align(ui_tap_close_label, LV_ALIGN_CENTER);
-        lv_label_set_text(ui_tap_close_label, "Close");
-        lv_obj_set_style_text_font(ui_tap_close_label, &lv_font_montserrat_10, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_align(ui_tap_close_label, LV_ALIGN_CENTER, 0, 0);
+        lv_label_set_text(ui_tap_close_label, LV_SYMBOL_CLOSE);
 
         ui_tap_pass_ascii_label = lv_label_create(ui_tag_auth_panel);
         lv_obj_set_width(ui_tap_pass_ascii_label, LV_SIZE_CONTENT);  /// 1
@@ -469,7 +457,7 @@ static void make_ta_panel()
     }
 }
 ///////////////////////////////////////////////////////////// SCREEN: ui_setupScreen  ////////////////////////////////////////////////////////////
-void ui_setupScreen_screen_init(void);
+// void ui_setupScreen_screen_init(void);
 lv_obj_t *tabview;
 /*---------------------------------------------------------------------WIFI TAB-----------------------------------------------------------*/
 lv_obj_t *ui_setupScreen;
@@ -520,8 +508,8 @@ void ui_wifi_scan_event_cb(lv_event_t *event)
 /* initiate wifi connection task */
 void ui_wifi_conn_event_cb(lv_event_t *event)
 {
-    kb_del();
-    if (wifi_scan_task_handle == NULL)
+    // kb_del();
+    if (wifi_connect_task_handle == NULL)
     {
         xTaskCreatePinnedToCore(wifi_conn_task,
                                 "wifi_conn_task",
@@ -529,6 +517,7 @@ void ui_wifi_conn_event_cb(lv_event_t *event)
                                 NULL, WIFI_TASK_PRIORITY,
                                 &wifi_connect_task_handle,
                                 WIFI_TASK_CORE);
+        __log("initiating wifi conn task");
     }
     else
     {
@@ -636,9 +625,9 @@ void tabview_slider_cb(lv_event_t *event)
 /* go to home */
 void ui_home_btn_cb(lv_event_t *event)
 {
-    ui_mainScreen_screen_init();
+    // ui_mainScreen_screen_init();
     lv_scr_load_anim(ui_mainScreen, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 200, 0, false);
-    __log("main screen loaded");
+    // __log("ui_mainScreen_screen_init(), prev screen deleted");
 }
 
 void ui_init(void)
@@ -649,8 +638,6 @@ void ui_init(void)
     lv_disp_set_theme(dispp, theme);
     ui_mainScreen_screen_init();
     ui_setupScreen_screen_init();
-    __log("ui_mainScreen_screen_init()");
-    __log("ui_setupScreen_screen_init()");
     // ui_memScreen_screen_init();
     ui____initial_actions0 = lv_obj_create(NULL);
     lv_disp_load_scr(ui_mainScreen);

@@ -30,6 +30,7 @@ extern "C"
     /* global objects */
     extern lv_obj_t *ui_mainScreen;
     extern lv_obj_t *ui_wifiIcon;
+    extern lv_obj_t *ui_sd_icon;
     extern lv_obj_t *epc_table;
     extern lv_obj_t *ui_timeLabel;
     extern lv_obj_t *ui_sdLogo;
@@ -88,6 +89,7 @@ extern "C"
     void ui_event_tap_pass_ascii_ta_vc(lv_event_t *e);
     void ui_event_tap_pass_hex_ta_vc(lv_event_t *e);
     void ui_event_tap_pass_hex_ta(lv_event_t *e);
+    void ui_home2_btn_cb(lv_event_t *event);
 
     /////////////////////////////////////////////////////// SCREEN: ui_setupScreen  ////////////////////////////////////////////////
     extern void ui_setupScreen_screen_init(void);

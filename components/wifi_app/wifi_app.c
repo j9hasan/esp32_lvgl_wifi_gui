@@ -38,16 +38,16 @@ static void event_handler(void *arg, esp_event_base_t event_base, int32_t event_
         xEventGroupSetBits(systemStatusEventGroup, WIFI_CONNECTED_BIT);
 
         ESP_LOGW(TAG, "After setting, now: %d", WIFI_CONNECTED_BIT);
-
-        if (xSemaphoreTake(xGuiSemaphore, pdMS_TO_TICKS(100)) == pdTRUE)
-        {
-            lv_label_set_text(ui_wifiIcon, LV_SYMBOL_WIFI);
-            xSemaphoreGive(xGuiSemaphore);
-        }
-        else
-        {
-            ESP_LOGE(TAG, "Failed to acquire mutex");
-        }
+        /* disabling wifi icon for now*/
+        // if (xSemaphoreTake(xGuiSemaphore, pdMS_TO_TICKS(100)) == pdTRUE)
+        // {
+        lv_label_set_text(ui_wifiIcon, LV_SYMBOL_WIFI);
+        //     xSemaphoreGive(xGuiSemaphore);
+        // }
+        // else
+        // {
+        //     ESP_LOGE(TAG, "Failed to acquire mutex");
+        // }
 #if WIFI_STATUS_PRINT
 
 #endif
@@ -145,89 +145,109 @@ void wifi_init_sta(void)
 
 void wifi_conn_task(void *pvParameters)
 {
-    const char *TAG = "WIFI CONN TASK";
-
     /*create notif panel wait for connection status */
     wnp_update("Connecting...");
 
     set_angle(spinner, 20);
     vTaskDelay(500 / portTICK_PERIOD_MS);
 
-    lv_obj_clear_flag(ui_wifi_scan_btn, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_clear_flag(ui_wifi_conn_btn, LV_OBJ_FLAG_CLICKABLE);
-
     /*take ssid from dd*/
     lv_dropdown_get_selected_str(ui_wifi_ssid_dd, wifi_ssid_dd, WIFI_SSID_BUFFER_SIZE);
 
     /*type converting ssid*/
     uint8_t temp_ssid[32] = "";
-    uint8_t temp_pass[64] = "";
+    uint8_t temp_pass[32] = "";
+
     memcpy(temp_ssid, wifi_ssid_dd, 32);
-    memcpy(temp_pass, lv_textarea_get_text(ui_wifi_pass_ta), 64);
+    memcpy(temp_pass, lv_textarea_get_text(ui_wifi_pass_ta), 32);
 
     // lv_arc_set_value(spinner, 20);
 
-    // __log( "temp_ssid: %s",temp_ssid);
-    // __log( "temp_pass: %s",temp_pass);
-    // __log( "wifi connect task");
+    __log("temp_ssid: %s", temp_ssid);
+    __log("temp_pass: %s", temp_pass);
 
-    ESP_ERROR_CHECK(esp_wifi_stop());
-    wifi_config_t wifi_config = {
-        .sta = {
-            .ssid = "",
-            .password = "",
-            .sae_pwe_h2e = WPA3_SAE_PWE_BOTH,
-        },
-    };
-    // lv_arc_set_value(spinner, 40);
+    /* warning if try to connect without any ssid and/or password */
 
-    u8cpy(wifi_config.sta.ssid, temp_ssid);
-    u8cpy(wifi_config.sta.password, temp_pass);
-
-    set_angle(spinner, 35);
-    vTaskDelay(500 / portTICK_PERIOD_MS);
-
-    ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
-    ESP_ERROR_CHECK(esp_wifi_start());
-
-    /*clear wifi status bits */
-    xEventGroupClearBits(systemStatusEventGroup, WIFI_FAIL_BIT);
-    xEventGroupClearBits(systemStatusEventGroup, WIFI_CONNECTED_BIT);
-
-    set_angle(spinner, 50);
-
-    bits = xEventGroupWaitBits(systemStatusEventGroup, WIFI_FAIL_BIT | WIFI_CONNECTED_BIT, pdTRUE, pdFALSE, portMAX_DELAY);
-
-    set_angle(spinner, 70);
-    vTaskDelay(500 / portTICK_PERIOD_MS);
-
-    if (bits & WIFI_CONNECTED_BIT)
+    if (strcmp((char *)temp_ssid, "SSID") == 0)
     {
-        __log("Wifi connected");
-        wnp_update("Connected.");
+        __log("SSID is null");
+        set_angle(spinner, 60);
+        wnp_update("SSID is null");
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
         set_angle(spinner, 100);
-        vTaskDelay(300 / portTICK_PERIOD_MS);
-    }
-    else if (bits & WIFI_FAIL_BIT)
-    {
-        ESP_LOGE(TAG, "Failed to connect.");
-        wnp_update("Failed to connect.");
-        set_angle(spinner, 100);
-        vTaskDelay(300 / portTICK_PERIOD_MS);
+        vTaskDelay(500 / portTICK_PERIOD_MS);
     }
     else
     {
-        ESP_LOGE(TAG, "Unexpected event.");
-        wnp_update("Unexpected event.");
-        vTaskDelay(700 / portTICK_PERIOD_MS);
+        if (strcmp((char *)temp_pass, "") == 0)
+        {
+            __log("null pass");
+            set_angle(spinner, 60);
+            wnp_update("Password is empty");
+            vTaskDelay(1000 / portTICK_PERIOD_MS);
+            set_angle(spinner, 100);
+            vTaskDelay(500 / portTICK_PERIOD_MS);
+        }
+        else
+        {
+            ESP_ERROR_CHECK(esp_wifi_stop());
+            wifi_config_t wifi_config = {
+                .sta = {
+                    .ssid = "",
+                    .password = "",
+                    .sae_pwe_h2e = WPA3_SAE_PWE_BOTH,
+                },
+            };
+            // lv_arc_set_value(spinner, 40);
+
+            u8cpy(wifi_config.sta.ssid, temp_ssid);
+            u8cpy(wifi_config.sta.password, temp_pass);
+
+            set_angle(spinner, 35);
+            vTaskDelay(500 / portTICK_PERIOD_MS);
+
+            ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
+            ESP_ERROR_CHECK(esp_wifi_start());
+
+            /*clear wifi status bits */
+            xEventGroupClearBits(systemStatusEventGroup, WIFI_FAIL_BIT);
+            xEventGroupClearBits(systemStatusEventGroup, WIFI_CONNECTED_BIT);
+
+            set_angle(spinner, 50);
+
+            bits = xEventGroupWaitBits(systemStatusEventGroup, WIFI_FAIL_BIT | WIFI_CONNECTED_BIT, pdTRUE, pdFALSE, portMAX_DELAY);
+
+            set_angle(spinner, 70);
+            vTaskDelay(500 / portTICK_PERIOD_MS);
+            if (bits & WIFI_CONNECTED_BIT)
+            {
+                __log("Wifi connected");
+                wnp_update("Connected.");
+                set_angle(spinner, 100);
+                vTaskDelay(300 / portTICK_PERIOD_MS);
+            }
+            else if (bits & WIFI_FAIL_BIT)
+            {
+                __log("Failed to connect.");
+                wnp_update("Failed to connect.");
+                set_angle(spinner, 100);
+                vTaskDelay(300 / portTICK_PERIOD_MS);
+            }
+            else
+            {
+                __log("Unexpected event.");
+                wnp_update("Unexpected event.");
+                vTaskDelay(700 / portTICK_PERIOD_MS);
+            }
+        }
     }
 
     wnp_del("del");
 
     // lv_obj_add_flag(notif_panel, LV_OBJ_FLAG_HIDDEN);
 
-    lv_obj_add_flag(ui_wifi_scan_btn, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_add_flag(ui_wifi_conn_btn, LV_OBJ_FLAG_CLICKABLE);
+    // lv_obj_add_flag(ui_wifi_scan_btn, LV_OBJ_FLAG_CLICKABLE);
+    // lv_obj_add_flag(ui_wifi_conn_btn, LV_OBJ_FLAG_CLICKABLE);
 
     wifi_connect_task_handle = NULL;
     vTaskDelete(wifi_connect_task_handle);
@@ -237,8 +257,8 @@ void wifi_conn_task(void *pvParameters)
 void wifi_scan_task(void *pvParameters)
 {
     wnp_update("Scanning...");
-    lv_obj_clear_flag(ui_wifi_scan_btn, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_clear_flag(ui_wifi_conn_btn, LV_OBJ_FLAG_CLICKABLE);
+    // lv_obj_clear_flag(ui_wifi_scan_btn, LV_OBJ_FLAG_CLICKABLE);
+    // lv_obj_clear_flag(ui_wifi_conn_btn, LV_OBJ_FLAG_CLICKABLE);
 
     static const char *TAG = "wifi scan";
     __log("wifi AP scan");
@@ -291,8 +311,8 @@ void wifi_scan_task(void *pvParameters)
 
     wnp_del("del");
 
-    lv_obj_add_flag(ui_wifi_scan_btn, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_add_flag(ui_wifi_conn_btn, LV_OBJ_FLAG_CLICKABLE);
+    // lv_obj_add_flag(ui_wifi_scan_btn, LV_OBJ_FLAG_CLICKABLE);
+    // lv_obj_add_flag(ui_wifi_conn_btn, LV_OBJ_FLAG_CLICKABLE);
 
     wifi_scan_task_handle = NULL;
     vTaskDelete(wifi_scan_task_handle);
