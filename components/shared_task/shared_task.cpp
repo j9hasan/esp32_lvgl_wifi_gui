@@ -21,7 +21,7 @@ void reader_info_fetching_task(void *pVparameters)
 
     if (pdTRUE == xSemaphoreTake(xGuiSemaphore, portMAX_DELAY))
     {
-        create_notif_panel("READER", "Fetching data, please wait", true);
+        create_notif_panel("READER", "Fetching data, please wait", true, 0);
         xSemaphoreGive(xGuiSemaphore);
     }
     vTaskDelay(300 / portTICK_PERIOD_MS);
@@ -81,7 +81,7 @@ void reader_info_write(void *pVparameters)
 {
     if (pdTRUE == xSemaphoreTake(xGuiSemaphore, portMAX_DELAY))
     {
-        create_notif_panel("READER", "Writing data, please wait", true);
+        create_notif_panel("READER", "Writing data, please wait", true, 0);
         xSemaphoreGive(xGuiSemaphore);
     }
 
@@ -93,11 +93,8 @@ void reader_info_write(void *pVparameters)
     uint32_t RFID_DD_BUFFER_SIZE = 20;
 
     /*getting scan time from textarea*/
-
     ri.ScanTime = charArrayToInt(lv_textarea_get_text(ui_scantime_txtarea));
-    // ri.ScanTime = 3;
 
-    // ESP_LOGI("TAG", "convertStringToUnsignedChar(lv_textarea_get_text(ui_scantime_txtarea)%s", convertStringToUnsignedChar(lv_textarea_get_text(ui_scantime_txtarea));
     ESP_LOGI("TAG", "%d", ri.ScanTime);
 
     ri.Power = charArrayToInt(lv_textarea_get_text(ui_power_txtarea));
@@ -159,49 +156,11 @@ void update_rfid_tab()
     }
 }
 
-#define FIRMWARE_UPGRADE_URL "http://192.168.1.8:8000/handheld.bin"
+#define FIRMWARE_UPGRADE_URL "http://192.168.0.105:8000/handheld.bin"
 #define OTA_RECV_TIMEOUT 5000
+
 // extern const uint8_t server_cert_pem_start[] asm("_binary_ca_cert_pem_start");
 // extern const uint8_t server_cert_pem_end[] asm("_binary_ca_cert_pem_end");
-
-static esp_err_t validate_image_header(esp_app_desc_t *new_app_info)
-{
-    if (new_app_info == NULL)
-    {
-        return ESP_ERR_INVALID_ARG;
-    }
-
-    const esp_partition_t *running = esp_ota_get_running_partition();
-    esp_app_desc_t running_app_info;
-    if (esp_ota_get_partition_description(running, &running_app_info) == ESP_OK)
-    {
-        __log("running firmware version: %s", running_app_info.version);
-    }
-
-#ifndef CONFIG_EXAMPLE_SKIP_VERSION_CHECK
-    if (memcmp(new_app_info->version, running_app_info.version, sizeof(new_app_info->version)) == 0)
-    {
-        __log("CurrenT running version is the same as a new. We will not continue the update.");
-        return ESP_FAIL;
-    }
-#endif
-
-#ifdef CONFIG_BOOTLOADER_APP_ANTI_ROLLBACK
-    /**
-     * Secure version check from firmware image header prevents subsequent download and flash write of
-     * entire firmware image. However this is optional because it is also taken care in API
-     * esp_https_ota_finish at the end of OTA update procedure.
-     */
-    const uint32_t hw_sec_version = esp_efuse_read_secure_version();
-    if (new_app_info->secure_version < hw_sec_version)
-    {
-        __log("New firmware security version is less than eFuse programmed, %d < %d", new_app_info->secure_version, hw_sec_version);
-        return ESP_FAIL;
-    }
-#endif
-
-    return ESP_OK;
-}
 
 static esp_err_t _http_client_init_cb(esp_http_client_handle_t http_client)
 {
@@ -211,26 +170,70 @@ static esp_err_t _http_client_init_cb(esp_http_client_handle_t http_client)
     return err;
 }
 
-// void advanced_ota_example_task(void *pvParameter)
-// {
-
-// }
-
 TaskHandle_t fw_update_task_handle = NULL;
 
+/* fuction to kill ota prcess on failure */
+static void end_ota_process()
+{
+    __log("ESP_HTTP_OTA upgrade failed");
+    lv_label_set_text(ui_n_1, "ESP_HTTP_OTA upgrade failed");
+    vTaskDelay(1500 / portTICK_PERIOD_MS);
+    if (pdTRUE == xSemaphoreTake(xGuiSemaphore, portMAX_DELAY))
+    {
+        notif_panel_del();
+        xSemaphoreGive(xGuiSemaphore);
+    }
+    fw_update_task_handle = NULL;
+    vTaskDelete(fw_update_task_handle);
+}
+
+static esp_err_t validate_image_header(esp_app_desc_t *new_app_info)
+{
+    if (new_app_info == NULL)
+    {
+        lv_label_set_text(ui_n_1, "image header NULL");
+        vTaskDelay(1500 / portTICK_PERIOD_MS);
+        return ESP_ERR_INVALID_ARG;
+    }
+
+    const esp_partition_t *running = esp_ota_get_running_partition();
+    esp_app_desc_t running_app_info;
+
+    if (esp_ota_get_partition_description(running, &running_app_info) == ESP_OK)
+    {
+        lv_label_set_text_fmt(ui_i_1, "Current fw v%s", running_app_info.version);
+        if (memcmp(new_app_info->version, running_app_info.version, sizeof(new_app_info->version)) != 0)
+        {
+            lv_label_set_text_fmt(ui_i_2, "Remote fw v%s", new_app_info->version);
+        }
+        vTaskDelay(2000 / portTICK_PERIOD_MS);
+        __log("Current firmware version: %s", running_app_info.version);
+    }
+
+    /* version check */
+    if (memcmp(new_app_info->version, running_app_info.version, sizeof(new_app_info->version)) == 0)
+    {
+        lv_label_set_text(ui_n_1, "No update avilable aborting.");
+        vTaskDelay(1500 / portTICK_PERIOD_MS);
+
+        __log("Current running version is the same as a new. We will not continue the update.");
+        return ESP_FAIL;
+    }
+    return ESP_OK;
+}
+
+/* firmware update routine */
 void fw_update_task(void *pVparameters)
 {
-
-    __log("fw_update_task running");
-
+    uint32_t image_size = 0;
     __log("Starting Advanced OTA Sequence");
 
     if (pdTRUE == xSemaphoreTake(xGuiSemaphore, portMAX_DELAY))
     {
-        create_notif_panel("FW update", "", true);
+        create_notif_panel("FW update", "", false, 1);
         xSemaphoreGive(xGuiSemaphore);
     }
-    lv_label_set_text(notif_msg, "Starting Advanced \nOTA Sequence");
+    lv_label_set_text(ui_n_1, "Starting Advanced OTA Sequence");
     vTaskDelay(1300 / portTICK_PERIOD_MS);
 
     esp_err_t ota_finish_err = ESP_OK;
@@ -253,15 +256,13 @@ void fw_update_task(void *pVparameters)
     if (err != ESP_OK)
     {
         __log("ESP HTTPS OTA Begin failed");
-        lv_label_set_text_fmt(notif_msg, "ESP HTTPS OTA Begin\nfailed.Err code: %s", esp_err_to_name(err));
+
+        lv_label_set_text_fmt(ui_n_1, "OTA Begin failed Err: %s", esp_err_to_name(err));
+
         vTaskDelay(1300 / portTICK_PERIOD_MS);
-        if (pdTRUE == xSemaphoreTake(xGuiSemaphore, portMAX_DELAY))
-        {
-            notif_panel_del();
-            xSemaphoreGive(xGuiSemaphore);
-        }
-        fw_update_task_handle = NULL;
-        vTaskDelete(fw_update_task_handle);
+
+        esp_https_ota_abort(https_ota_handle);
+        end_ota_process();
     }
 
     esp_app_desc_t app_desc;
@@ -269,18 +270,34 @@ void fw_update_task(void *pVparameters)
     if (err != ESP_OK)
     {
         __log("esp_https_ota_read_img_desc failed");
-        lv_label_set_text_fmt(notif_msg, "Read img failed\nErr code: %s", esp_err_to_name(err));
-        vTaskDelay(1300 / portTICK_PERIOD_MS);
-        goto ota_end;
+
+        lv_label_set_text(ui_n_1, "Image desc. read fails.");
+        vTaskDelay(1500 / portTICK_PERIOD_MS);
+
+        esp_https_ota_abort(https_ota_handle);
+        end_ota_process();
     }
     err = validate_image_header(&app_desc);
     if (err != ESP_OK)
     {
         __log("Image Header verification failed.");
-        lv_label_set_text_fmt(notif_msg, "Image Header verification \nfailed.Err code: %s", esp_err_to_name(err));
-        vTaskDelay(1300 / portTICK_PERIOD_MS);
-        goto ota_end;
+
+        esp_https_ota_abort(https_ota_handle);
+        end_ota_process();
     }
+    else
+    {
+        /* verify success, get image size */
+        image_size = esp_https_ota_get_image_size(https_ota_handle) / 1000;
+
+        lv_label_set_text_fmt(ui_i_3, "App size %dKB", image_size);
+    }
+
+    TickType_t lastUpdateTime = 0;
+    const TickType_t updateInterval = pdMS_TO_TICKS(1000);
+
+    /* set download bar range */
+    lv_bar_set_range(ui_b_1, 0, image_size);
 
     while (1)
     {
@@ -289,26 +306,46 @@ void fw_update_task(void *pVparameters)
         {
             break;
         }
-        __log("Image bytes read: %d", esp_https_ota_get_image_len_read(https_ota_handle));
-        lv_label_set_text_fmt(notif_msg, "Image read: %d KB", esp_https_ota_get_image_len_read(https_ota_handle) / 1000);
-        vTaskDelay(30 / portTICK_PERIOD_MS);
+
+        uint32_t img_loaded = esp_https_ota_get_image_len_read(https_ota_handle) / 1000;
+        __log("Image bytes read: %d", img_loaded);
+
+        /* update gui every 1 sec to reduce cpu load */
+        TickType_t currentTime = xTaskGetTickCount();
+
+        if ((currentTime - lastUpdateTime) >= updateInterval)
+        {
+            lastUpdateTime = currentTime;
+            /* show and update bar value */
+            lv_obj_clear_flag(ui_b_1, LV_OBJ_FLAG_HIDDEN);
+
+            lv_bar_set_value(ui_b_1, img_loaded, LV_ANIM_OFF);
+
+            lv_label_set_text_fmt(ui_n_1, "Image read: %d KB", img_loaded);
+        }
     }
 
     if (esp_https_ota_is_complete_data_received(https_ota_handle) != true)
     {
-        // the OTA image was not completely received and user can customise the response to this situation.
+        /* the OTA image was not completely received and user can customise the response to this situation. */
         __log("Complete data was not received.");
-        lv_label_set_text(notif_msg, "Complete data was not received.");
-        vTaskDelay(1300 / portTICK_PERIOD_MS);
+
+        lv_label_set_text(ui_n_1, "Complete data was not received.");
+
+        vTaskDelay(1500 / portTICK_PERIOD_MS);
     }
     else
     {
         ota_finish_err = esp_https_ota_finish(https_ota_handle);
+
         if ((err == ESP_OK) && (ota_finish_err == ESP_OK))
         {
             __log("ESP_HTTPS_OTA upgrade successful. Rebooting ...");
-            lv_label_set_text(notif_msg, "ESP_HTTP_OTA upgrade successful.\nRebooting ...");
+
+            lv_label_set_text(ui_n_1, "OTA update successful.Rebooting ...");
+
             vTaskDelay(1200 / portTICK_PERIOD_MS);
+
             if (pdTRUE == xSemaphoreTake(xGuiSemaphore, portMAX_DELAY))
             {
                 notif_panel_del();
@@ -321,31 +358,14 @@ void fw_update_task(void *pVparameters)
             if (ota_finish_err == ESP_ERR_OTA_VALIDATE_FAILED)
             {
                 __log("Image validation failed, image is corrupted");
-                lv_label_set_text(notif_msg, "Image validation failed, image is corrupted");
+
+                lv_label_set_text(ui_n_1, "Img corrupted");
+
                 vTaskDelay(1300 / portTICK_PERIOD_MS);
             }
-            __log("ESP_HTTPS_OTA upgrade failed 0x%x", ota_finish_err);
-            lv_label_set_text_fmt(notif_msg, "ESP_HTTPS_OTA upgrade failed 0x%x", ota_finish_err);
-            vTaskDelay(1300 / portTICK_PERIOD_MS);
-            if (pdTRUE == xSemaphoreTake(xGuiSemaphore, portMAX_DELAY))
-            {
-                notif_panel_del();
-                xSemaphoreGive(xGuiSemaphore);
-            }
-            fw_update_task_handle = NULL;
-            vTaskDelete(fw_update_task_handle);
+            esp_https_ota_abort(https_ota_handle);
+            end_ota_process();
         }
-    }
-
-ota_end:
-    esp_https_ota_abort(https_ota_handle);
-    __log("ESP_HTTPS_OTA upgrade failed");
-    lv_label_set_text(notif_msg, "ESP_HTTPS_OTA upgrade failed");
-    vTaskDelay(1300 / portTICK_PERIOD_MS);
-    if (pdTRUE == xSemaphoreTake(xGuiSemaphore, portMAX_DELAY))
-    {
-        notif_panel_del();
-        xSemaphoreGive(xGuiSemaphore);
     }
     fw_update_task_handle = NULL;
     vTaskDelete(fw_update_task_handle);

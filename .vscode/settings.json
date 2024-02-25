@@ -23,7 +23,7 @@
         "system_status.h": "c",
         "sd_fat.h": "c"
     },
-    "idf.portWin": "COM26",
+    "idf.portWin": "COM7",
     "idf.flashType": "UART",
     "idf.flashBaudRate": "921600"
 }

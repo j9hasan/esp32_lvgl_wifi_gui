@@ -151,7 +151,7 @@ extern "C"
     void ui_reader_scantime_txtarea_cb(lv_event_t *event);
 
     ////////////////////////////////////////////////////////////////////// GLOBAL /////////////////////////////////////////////////////////
-    void create_notif_panel(const char *title, const char *msg, bool _spin);
+    void create_notif_panel(const char *title, const char *msg, bool _spin, uint8_t cmd);
     void notif_msg_update(const char *msg);
     void notif_panel_del();
 
@@ -160,10 +160,14 @@ extern "C"
     extern lv_obj_t *notif_close_btn;
     extern lv_obj_t *notif_msg;
     extern lv_obj_t *notif_cross_icon;
+    extern lv_obj_t *ui_b_1;
+    extern lv_obj_t *ui_n_1;
+    extern lv_obj_t *ui_i_1;
+    extern lv_obj_t *ui_i_2;
+    extern lv_obj_t *ui_i_3;
 
     extern void kb_event_cb(lv_event_t *event);
-    void make_kb();
-    void kb_del();
+    // void kb_del();
     extern lv_obj_t *kb;
 
     void

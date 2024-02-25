@@ -15,6 +15,10 @@
 
 /* only global objects are here */
 
+/* static prototypes */
+static void kb_del();
+static void make_kb(lv_obj_t *obj);
+
 ////////////////////////////////////////////////////////////// SCREEN: ui_mainScreen  //////////////////////////////////////////////////////////
 
 /* filter panel global objects */
@@ -673,9 +677,10 @@ lv_obj_t *notif_panel_title;
 lv_obj_t *notif_close_btn;
 lv_obj_t *notif_msg;
 lv_obj_t *notif_cross_icon;
+
 bool spin_flag = false;
 
-void make_kb(lv_obj_t *obj)
+static void make_kb(lv_obj_t *obj)
 {
 
     if (!lv_obj_is_valid(kb))
@@ -699,7 +704,7 @@ void kb_event_cb(lv_event_t *event)
     }
 }
 
-void kb_del()
+static void kb_del()
 {
     if (lv_obj_is_valid(kb))
     {
@@ -747,8 +752,15 @@ void notif_panel_del()
         lv_obj_add_flag(notif_panel, LV_OBJ_FLAG_HIDDEN);
     }
 }
+/* glob obj */
+/* fw update notif panel */
+lv_obj_t *ui_b_1;
+lv_obj_t *ui_n_1;
+lv_obj_t *ui_i_1;
+lv_obj_t *ui_i_2;
+lv_obj_t *ui_i_3;
 
-void create_notif_panel(const char *title, const char *msg, bool _spin)
+void create_notif_panel(const char *title, const char *msg, bool _spin, uint8_t cmd)
 {
     if (lv_obj_is_valid(notif_panel))
     {
@@ -765,10 +777,8 @@ void create_notif_panel(const char *title, const char *msg, bool _spin)
         lv_obj_set_style_shadow_opa(notif_panel, 150, LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_shadow_width(notif_panel, 30, LV_PART_MAIN | LV_STATE_DEFAULT);
         lv_obj_set_style_shadow_spread(notif_panel, 500, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-        notif_panel_title = lv_label_create(notif_panel);
-        lv_label_set_text(notif_panel_title, title);
-        lv_obj_align(notif_panel_title, LV_ALIGN_TOP_LEFT, 0, 0);
+        lv_obj_set_style_border_width(notif_panel, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+        lv_obj_clear_flag(notif_panel, LV_OBJ_FLAG_SCROLLABLE);
 
         notif_close_btn = lv_btn_create(notif_panel);
         lv_obj_set_height(notif_close_btn, 25);
@@ -780,24 +790,103 @@ void create_notif_panel(const char *title, const char *msg, bool _spin)
         lv_obj_align(notif_cross_icon, LV_ALIGN_CENTER, 0, 0);
         lv_label_set_text(notif_cross_icon, LV_SYMBOL_CLOSE);
 
-        notif_msg = lv_label_create(notif_panel);
-        lv_label_set_text(notif_msg, msg);
-
-        spin_flag = _spin;
-        if (spin_flag == true)
+        if (cmd == 1)
         {
-            lv_obj_t *spinner = lv_spinner_create(notif_panel, 1000, 60);
-            lv_obj_set_height(spinner, 45);
-            lv_obj_set_width(spinner, 45);
-            lv_obj_align(spinner, LV_ALIGN_CENTER, 0, -8);
-            lv_obj_align(notif_msg, LV_ALIGN_CENTER, 0, 27);
+            /* fw update panel */
+            lv_obj_t *ui_s_1;
+            lv_obj_t *ui_t_1;
+            // lv_obj_t *ui_b_1;
+            // lv_obj_t *ui_n_1;
+            // lv_obj_t *ui_i_1;
+            // lv_obj_t *ui_i_2;
+            // lv_obj_t *ui_i_3;
+            // lv_obj_t *ui_n_2;
+            ui_s_1 = lv_spinner_create(notif_panel, 1000, 90);
+            lv_obj_set_width(ui_s_1, 28);
+            lv_obj_set_height(ui_s_1, 28);
+            lv_obj_align(ui_s_1, LV_ALIGN_TOP_LEFT, 0, 0);
+            lv_obj_clear_flag(ui_s_1, LV_OBJ_FLAG_CLICKABLE); /// Flags
+            lv_obj_set_style_arc_width(ui_s_1, 9, LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_obj_set_style_arc_width(ui_s_1, 9, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+
+            ui_t_1 = lv_label_create(notif_panel);
+            lv_obj_set_width(ui_t_1, LV_SIZE_CONTENT);  /// 1
+            lv_obj_set_height(ui_t_1, LV_SIZE_CONTENT); /// 1
+            lv_obj_align(ui_t_1, LV_ALIGN_TOP_LEFT, 34, 4);
+            lv_label_set_text(ui_t_1, title);
+            lv_obj_set_style_text_font(ui_t_1, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+            ui_b_1 = lv_bar_create(notif_panel);
+            lv_bar_set_value(ui_b_1, 25, LV_ANIM_OFF);
+            lv_bar_set_start_value(ui_b_1, 0, LV_ANIM_OFF);
+            lv_obj_set_width(ui_b_1, 162);
+            lv_obj_set_height(ui_b_1, 10);
+            lv_obj_set_x(ui_b_1, 0);
+            lv_obj_set_y(ui_b_1, 44);
+            lv_obj_set_align(ui_b_1, LV_ALIGN_CENTER);
+            lv_obj_add_flag(ui_b_1, LV_OBJ_FLAG_HIDDEN);
+
+            ui_n_1 = lv_label_create(notif_panel);
+            lv_obj_set_width(ui_n_1, LV_SIZE_CONTENT);  /// 1
+            lv_obj_set_height(ui_n_1, LV_SIZE_CONTENT); /// 1
+            lv_obj_set_x(ui_n_1, 0);
+            lv_obj_set_y(ui_n_1, 26);
+            lv_obj_set_align(ui_n_1, LV_ALIGN_CENTER);
+            lv_label_set_text(ui_n_1, "");
+            lv_obj_set_style_text_font(ui_n_1, &lv_font_montserrat_10, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+            ui_i_1 = lv_label_create(notif_panel);
+            lv_obj_set_width(ui_i_1, LV_SIZE_CONTENT);  /// 1
+            lv_obj_set_height(ui_i_1, LV_SIZE_CONTENT); /// 1
+            lv_obj_set_x(ui_i_1, 0);
+            lv_obj_set_y(ui_i_1, -19);
+            lv_obj_set_align(ui_i_1, LV_ALIGN_CENTER);
+            lv_label_set_text(ui_i_1, "Current fw ...");
+            lv_obj_set_style_text_font(ui_i_1, &lv_font_montserrat_10, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+            ui_i_2 = lv_label_create(notif_panel);
+            lv_obj_set_width(ui_i_2, LV_SIZE_CONTENT);  /// 1
+            lv_obj_set_height(ui_i_2, LV_SIZE_CONTENT); /// 1
+            lv_obj_set_x(ui_i_2, 0);
+            lv_obj_set_y(ui_i_2, -4);
+            lv_obj_set_align(ui_i_2, LV_ALIGN_CENTER);
+            lv_label_set_text(ui_i_2, "Remote fw ...");
+            lv_obj_set_style_text_font(ui_i_2, &lv_font_montserrat_10, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+            ui_i_3 = lv_label_create(notif_panel);
+            lv_obj_set_width(ui_i_3, LV_SIZE_CONTENT);  /// 1
+            lv_obj_set_height(ui_i_3, LV_SIZE_CONTENT); /// 1
+            lv_obj_set_x(ui_i_3, 0);
+            lv_obj_set_y(ui_i_3, 11);
+            lv_obj_set_align(ui_i_3, LV_ALIGN_CENTER);
+            lv_label_set_text(ui_i_3, "App size: ...");
+            lv_obj_set_style_text_font(ui_i_3, &lv_font_montserrat_10, LV_PART_MAIN | LV_STATE_DEFAULT);
         }
         else
         {
-            lv_obj_align(notif_msg, LV_ALIGN_CENTER, 0, 0);
+            notif_panel_title = lv_label_create(notif_panel);
+            lv_label_set_text(notif_panel_title, title);
+            lv_obj_align(notif_panel_title, LV_ALIGN_TOP_LEFT, 0, 0);
+
+            notif_msg = lv_label_create(notif_panel);
+            lv_label_set_text(notif_msg, msg);
+
+            spin_flag = _spin;
+            if (spin_flag == true)
+            {
+                lv_obj_t *spinner = lv_spinner_create(notif_panel, 1000, 60);
+                lv_obj_set_height(spinner, 45);
+                lv_obj_set_width(spinner, 45);
+                lv_obj_align(spinner, LV_ALIGN_CENTER, 0, -13);
+                lv_obj_align(notif_msg, LV_ALIGN_CENTER, 0, 27);
+            }
+            else
+            {
+                lv_obj_align(notif_msg, LV_ALIGN_CENTER, 0, 0);
+            }
         }
         lv_obj_add_event_cb(notif_close_btn, notif_panel_close_event_cb, LV_EVENT_CLICKED, NULL);
-        __log("n panel created");
+        __log("n panel created cmd %d", cmd);
     }
 }
 

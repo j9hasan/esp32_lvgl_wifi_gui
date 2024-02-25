@@ -21,8 +21,6 @@ static void event_handler(void *arg, esp_event_base_t event_base, int32_t event_
     wifi_event_sta_connected_t wesc;
     wifi_event_sta_disconnected_t wesd;
 
-    static const char *TAG = "WIFI EVENT HANDLER";
-
     if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START)
     {
         __log("event id: WIFI_EVENT_STA_START ");
@@ -33,21 +31,14 @@ static void event_handler(void *arg, esp_event_base_t event_base, int32_t event_
     {
         // __log("WIFI connected to SSID: %s, BSSID: " MACSTR" );
 
-        ESP_LOGW(TAG, "Setting wifi connected bit, now: %d", WIFI_CONNECTED_BIT);
+        __log("Setting wifi connected bit, now: %d", WIFI_CONNECTED_BIT);
 
         xEventGroupSetBits(systemStatusEventGroup, WIFI_CONNECTED_BIT);
 
-        ESP_LOGW(TAG, "After setting, now: %d", WIFI_CONNECTED_BIT);
-        /* disabling wifi icon for now*/
-        // if (xSemaphoreTake(xGuiSemaphore, pdMS_TO_TICKS(100)) == pdTRUE)
-        // {
+        __log("After setting, now: %d", WIFI_CONNECTED_BIT);
+
         lv_label_set_text(ui_wifiIcon, LV_SYMBOL_WIFI);
-        //     xSemaphoreGive(xGuiSemaphore);
-        // }
-        // else
-        // {
-        //     ESP_LOGE(TAG, "Failed to acquire mutex");
-        // }
+
 #if WIFI_STATUS_PRINT
 
 #endif
@@ -67,11 +58,11 @@ static void event_handler(void *arg, esp_event_base_t event_base, int32_t event_
         {
             __log("connection failed. setting:s_wifi_event_group = WIFI_FAIL_BIT ");
 
-            ESP_LOGW(TAG, "Setting wifi fail bit, now: %d", WIFI_FAIL_BIT);
+            __log("Setting wifi fail bit, now: %d", WIFI_FAIL_BIT);
 
             xEventGroupSetBits(systemStatusEventGroup, WIFI_FAIL_BIT);
 
-            ESP_LOGW(TAG, "After setting, now: %d", WIFI_CONNECTED_BIT);
+            __log("After setting, now: %d", WIFI_CONNECTED_BIT);
         }
         __log("connect to the AP fail");
 
@@ -102,8 +93,6 @@ static void event_handler(void *arg, esp_event_base_t event_base, int32_t event_
 }
 void wifi_init_sta(void)
 {
-    const char *TAG = "WIFI STA INIT";
-
     esp_err_t err;
     err = esp_netif_init();
 
@@ -132,7 +121,7 @@ void wifi_init_sta(void)
     err = esp_wifi_start();
     if (err != ESP_OK)
     {
-        ESP_LOGE(TAG, "Error occurred: %s", esp_err_to_name(err));
+        __log("Error occurred: %s", esp_err_to_name(err));
     }
 
     __log("wifi_init_sta finished.");
@@ -257,10 +246,7 @@ void wifi_conn_task(void *pvParameters)
 void wifi_scan_task(void *pvParameters)
 {
     wnp_update("Scanning...");
-    // lv_obj_clear_flag(ui_wifi_scan_btn, LV_OBJ_FLAG_CLICKABLE);
-    // lv_obj_clear_flag(ui_wifi_conn_btn, LV_OBJ_FLAG_CLICKABLE);
 
-    static const char *TAG = "wifi scan";
     __log("wifi AP scan");
 
     set_angle(spinner, 20);
@@ -330,7 +316,6 @@ void display_time(void *pvParameters)
 
 void time_sync_notification_cb(struct timeval *tv)
 {
-    const char *TAG = "time ev notification";
     __log("Notification of a time synchronization event");
     xTaskCreatePinnedToCore(display_time,
                             "display time",
@@ -343,7 +328,6 @@ void time_sync_notification_cb(struct timeval *tv)
 
 void Get_current_date_time()
 {
-    // const char *TAG = "getDateTime";
     char strftime_buf[10];
     time_t now;
     struct tm timeinfo;
@@ -362,7 +346,6 @@ void Get_current_date_time()
 
 static void initialize_sntp(void)
 {
-    const char *TAG = "initialize_sntp";
     __log("Initializing SNTP");
     sntp_setoperatingmode(SNTP_OPMODE_POLL);
     sntp_setservername(0, "pool.ntp.org");
@@ -374,7 +357,6 @@ static void initialize_sntp(void)
 }
 static void obtain_time(void)
 {
-    const char *TAG = "obtain_time";
     initialize_sntp();
     // wait for time to be set
     time_t now = 0;
@@ -391,7 +373,6 @@ static void obtain_time(void)
 }
 void Set_SystemTime_SNTP()
 {
-    const char *TAG = "Set_SystemTime_SNTP";
     time_t now;
     struct tm timeinfo;
     time(&now);

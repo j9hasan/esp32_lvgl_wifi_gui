@@ -181,7 +181,7 @@ static void system_initialization()
   /* Create notification panel to show initialization status*/
   if (pdTRUE == xSemaphoreTake(xGuiSemaphore, portMAX_DELAY))
   {
-    create_notif_panel("Init: reader", "", true);
+    create_notif_panel("Init: reader", "", true, 0);
     xSemaphoreGive(xGuiSemaphore);
   }
   lv_label_set_text_fmt(notif_msg, "Com status: %s\nBaudrate: 57600", bool_to_str = (stat) ? "OK" : "FAILED");
