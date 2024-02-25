@@ -17,7 +17,6 @@ uint16_t row_ = 0, col_ = 0;
 
 void mem_screen(lv_event_t *e)
 {
-
 	const char *st = lv_table_get_cell_value(epc_table, row_, col_);
 	string epcFromTable = st;
 	int n = Inventory(false);
@@ -33,7 +32,7 @@ void mem_screen(lv_event_t *e)
 	{
 		ScanResult sd;
 		GetResult((unsigned char *)&sd, i);
-		unsigned char tid[16];
+		unsigned char tid[64];
 		unsigned char tidlen = 0;
 		string epc = string((char *)sd.epc, sd.epclen);
 		string epcFromScan = tohex(epc);
@@ -47,6 +46,8 @@ void mem_screen(lv_event_t *e)
 				// EPCNUM_g[sizeof(sd->EPCNUM) - 1] = '\0';
 				__log("tid found\n");
 				tidString = bytes2hex(tid, tidlen);
+				__log("tid: %s", tid);
+				__log("tidString : %s", tidString.c_str());
 				GetTagInfo(tid, &ti);
 
 				/*tid found, populate ui*/
@@ -73,9 +74,10 @@ void mem_screen(lv_event_t *e)
 					// memset(substrings, 0x00, sizeof(substrings));
 					// memset(substrings_, 0x00, sizeof(substrings_));
 				}
+				// ti.userlen = ti.userlen;
 				__log("usrlen : %d", ti.userlen);
 				__log("usrlen/2 : %d", ti.userlen);
-
+				__log("usrlen/2 : %d", ti.userlen);
 				/*SET USER COL*/
 				if ((ti.userlen / 2) < 8)
 				{
@@ -100,7 +102,7 @@ void mem_screen(lv_event_t *e)
 						if (j < 8)
 						{
 							lv_table_set_cell_value_fmt(tag_data_table, 2 + 1, j + 1, "% 02x % 02x", mem_data[0], mem_data[1]);
-							printf("j : %d, userData %2x%2x\n", j, mem_data[0], mem_data[1]);
+							__log("j : %d, userData %2x%2x\n", j, mem_data[0], mem_data[1]);
 							/*create new user row TODO*/
 							// lv_table_set_cell_value_fmt(tag_data_table, 4, j + 8, "% 02x % 02x", mem_data[0], mem_data[1]);
 						}
@@ -164,10 +166,11 @@ void mem_scr_write_task(void *pVparameters)
 	/*CONVErt to uppeRCASE*/
 	/*
 	 */
+	__log("text from tdwo data txtarea: %s", txtAreaData);
 	unsigned char mem_data_[2];
 	if (strlen(txtAreaData) == 4)
 	{
-		printf("row: %u, col %u\n", row_, col_);
+		__log("row: %u, col %u\n", row_, col_);
 		sscanf(txtAreaData, "%2hhx", &mem_data_[0]);
 		sscanf(txtAreaData + 2, "%2hhx", &mem_data_[1]);
 		switch (row_)
@@ -235,7 +238,6 @@ void mem_scr_write_task(void *pVparameters)
 TaskHandle_t mem_task_handle = NULL;
 void tdw_panel_write_cb(lv_event_t *e)
 {
-
 	if (mem_task_handle == NULL)
 	{
 		xTaskCreatePinnedToCore(

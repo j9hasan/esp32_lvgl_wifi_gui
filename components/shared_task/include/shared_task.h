@@ -31,6 +31,12 @@
 #define WIFI_CONNECT_TASK_STACK_SIZE 5 * 1024
 #define WIFI_TASK_CORE 0
 
+/*fw update task parameters*/
+#define FW_UPDATE_TASK_PRIORITY 10
+#define FW_UPDATE_TASK_STACK_SIZE 5 * 1024
+#define FW_UPDATE_TASK_STACK_SIZE 5 * 1024
+#define FW_UPDATE_TASK_CORE 1
+
 /*inv scan task parameters*/
 #define INV_TASK_PRIORITY tskIDLE_PRIORITY
 #define INV_SCAN_TASK_STACK_SIZE 5 * 1024
@@ -55,6 +61,7 @@ extern "C"
     void reader_info_fetching_task(void *pVparameters);
     void reader_info_write(void *pVparameters);
     void update_rfid_tab();
+    void fw_update_task(void *pVparameters);
 
     /*gui mutex*/
     extern SemaphoreHandle_t xGuiSemaphore;
@@ -73,7 +80,8 @@ extern "C"
         img_slider_task_handle,
         GUI_TASK_HANDLE,
         RFID_TASK_HANDLE,
-        READER_WRITE_TASK_HANDLE;
+        READER_WRITE_TASK_HANDLE,
+        fw_update_task_handle;
 
     extern uint16_t row_, col_;
 

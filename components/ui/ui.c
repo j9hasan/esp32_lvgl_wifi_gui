@@ -125,10 +125,12 @@ void ui_event_main_table_cb(lv_event_t *e)
         __log("row: %u, col %u\n", row_, col_);
         if (row_ > 0 && col_ < 1)
         {
-
             ui_memScreen_screen_init();
-            lv_scr_load_anim(ui_memScreen, LV_SCR_LOAD_ANIM_MOVE_LEFT, 100, 0, false);
             mem_screen(e);
+            lv_scr_load_anim(ui_memScreen, LV_SCR_LOAD_ANIM_MOVE_LEFT, 100, 0, false);
+            // mem_screen(e);
+            // _ui_screen_delete(&ui_mainScreen);
+            // _ui_screen_change(&ui_memScreen, LV_SCR_LOAD_ANIM_MOVE_LEFT, 50, 0, &ui_memScreen_screen_init);
         }
         else
         {
@@ -252,17 +254,18 @@ void ui_event_tdwp_write_btn(lv_event_t *e)
     {
         /* starts write task in uievents.cpp */
         tdw_panel_write_cb(e);
+        kb_del();
 
-        if (lv_obj_is_valid(ui_tag_data_write_panel))
-        {
-            lv_obj_del(ui_tag_data_write_panel);
-            ui_tag_data_write_panel = NULL;
-            __log("obj 'ui_tag_data_write' deleted");
-        }
-        else
-        {
-            __log("failed to del obj 'ui_tag_data_write' null");
-        }
+        // if (lv_obj_is_valid(ui_tag_data_write_panel))
+        // {
+        //     lv_obj_del(ui_tag_data_write_panel);
+        //     ui_tag_data_write_panel = NULL;
+        //     __log("obj 'ui_tag_data_write' deleted");
+        // }
+        // else
+        // {
+        //     __log("failed to del obj 'ui_tag_data_write' null");
+        // }
     }
 }
 
@@ -630,6 +633,24 @@ void ui_home_btn_cb(lv_event_t *event)
     // __log("ui_mainScreen_screen_init(), prev screen deleted");
 }
 
+/* setup tab */
+void ui_event_check_and_do_fw_update(lv_event_t *event)
+{
+    /* initiate fw_update_task, defined in shaared task.cpp*/
+    if (fw_update_task_handle == NULL)
+    {
+        xTaskCreatePinnedToCore(fw_update_task, "fw update task",
+                                FW_UPDATE_TASK_STACK_SIZE, NULL,
+                                FW_UPDATE_TASK_PRIORITY,
+                                &fw_update_task_handle,
+                                FW_UPDATE_TASK_CORE);
+        __log("fw update tsk initiated");
+    }
+    else
+    {
+        __log("fw update task already running");
+    }
+}
 void ui_init(void)
 {
     lv_disp_t *dispp = lv_disp_get_default();
@@ -765,7 +786,7 @@ void create_notif_panel(const char *title, const char *msg, bool _spin)
         spin_flag = _spin;
         if (spin_flag == true)
         {
-            lv_obj_t *spinner = lv_spinner_create(notif_panel, 1500, 60);
+            lv_obj_t *spinner = lv_spinner_create(notif_panel, 1000, 60);
             lv_obj_set_height(spinner, 45);
             lv_obj_set_width(spinner, 45);
             lv_obj_align(spinner, LV_ALIGN_CENTER, 0, -8);

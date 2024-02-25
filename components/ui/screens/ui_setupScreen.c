@@ -425,23 +425,6 @@ void ui_setupScreen_screen_init(void)
     lv_obj_set_height(spinner, 45);
     lv_obj_set_width(spinner, 45);
     lv_obj_align(spinner, LV_ALIGN_CENTER, 0, -8);
-    // lv_arc_set_value(spinner, 10);
-
-    // lv_anim_t a;
-    // lv_anim_init(&a);
-    // lv_anim_set_var(&a, spinner);
-    // lv_anim_set_exec_cb(&a, set_angle);
-    // lv_anim_set_time(&a, 1000);
-    // lv_anim_set_repeat_count(&a, LV_ANIM_REPEAT_INFINITE); /*Just for the demo*/
-    // lv_anim_set_repeat_delay(&a, 500);
-    // lv_anim_set_values(&a, 0, 100);
-    // lv_anim_start(&a);
-
-    // lv_obj_t *spinner = lv_spinner_create(wn_panel, 1000, 60);
-    // lv_obj_set_height(spinner, 45);
-    // lv_obj_set_width(spinner, 45);
-    // lv_obj_align(spinner, LV_ALIGN_CENTER, 0, -8);
-    // lv_obj_align(wnp_msg, LV_ALIGN_CENTER, 0, 27);
 
     ui_offset = lv_label_create(tab1);
     lv_obj_set_width(ui_offset, LV_SIZE_CONTENT);  /// 1
@@ -454,8 +437,17 @@ void ui_setupScreen_screen_init(void)
     //////////////////////////////////////////////////////////////////////SETUP TAB//////////////////////////////////////////////////////
 
     label = lv_label_create(tab3);
-    lv_label_set_text(label, "Setup tab");
+    lv_label_set_text(label, "Hiii, new system init func.");
     lv_tabview_set_act(tabview, 0, LV_ANIM_ON);
+
+    /* firmware update button */
+    lv_obj_t *ui_fw_update_btn = lv_btn_create(tab3);
+    lv_obj_align(ui_fw_update_btn, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_add_style(ui_fw_update_btn, &btn_style, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    lv_obj_t *ui_fw_update_btn_label = lv_label_create(ui_fw_update_btn);
+    lv_label_set_text(ui_fw_update_btn_label, "Firmware update");
+    lv_obj_add_style(ui_fw_update_btn_label, &btn_label_style, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     //////////////////////////////////////////////////////////// SETUP SCREEN: parent ////////////////////////////////////////////////
 
@@ -486,6 +478,9 @@ void ui_setupScreen_screen_init(void)
     lv_obj_add_event_cb(ui_reader_info_write, ui_reader_info_write_cb, LV_EVENT_CLICKED, NULL); /*Reader write task cb*/
     lv_obj_add_event_cb(ui_scantime_txtarea, ui_reader_scantime_txtarea_cb, LV_EVENT_CLICKED, NULL);
     lv_obj_add_event_cb(ui_power_txtarea, ui_reader_power_txtarea_cb, LV_EVENT_CLICKED, NULL);
+
+    /* setup tab */
+    lv_obj_add_event_cb(ui_fw_update_btn, ui_event_check_and_do_fw_update, LV_EVENT_CLICKED, NULL);
 }
 
 /* notification panel functionality

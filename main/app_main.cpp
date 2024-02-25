@@ -23,6 +23,7 @@ static void init_sleep_timer();
 static void lv_tick_task(void *arg);
 static void ui_task(void *pvParameter);
 static void gpioConfig();
+static void system_initialization();
 
 /* Task handler */
 TaskHandle_t GUI_TASK_HANDLE = NULL, sleep_timer_handler;
@@ -55,55 +56,8 @@ extern "C" void app_main()
   /* Wait for the UI to initialize using event groups */
   bits = xEventGroupWaitBits(systemStatusEventGroup, UI_INITIALIZED_BIT, pdTRUE, pdTRUE, portMAX_DELAY);
 
-  /* Open com for reader, return false if reader is not connected */
-  bool stat = OpenComPort("COMX", 57600);
-  const char *bool_to_str;
-
-  /* Create notification panel to show initialization status*/
-  create_notif_panel("Init: reader", "", true);
-  lv_label_set_text_fmt(notif_msg, "Com status: %s\nBaudrate: 57600", bool_to_str = (stat) ? "OK" : "FAILED");
-
-  /* Init reader */
-  stat = GetSettings(&ri);
-  system_status.reader = stat;
-  lv_label_set_text_fmt(notif_msg, "Reader status: %s", bool_to_str = (stat) ? "OK" : "FAILED");
-  vTaskDelay(700 / portTICK_PERIOD_MS);
-
-  /* init sd card */
-  lv_label_set_text(notif_panel_title, "Init: SD card");
-  lv_label_set_text(notif_msg, "Getting sd status...");
-  initSD();
-  vTaskDelay(700 / portTICK_PERIOD_MS);
-  lv_label_set_text_fmt(notif_msg, "SD status: %s", esp_err_to_name(sd_card_error));
-  vTaskDelay(1000 / portTICK_PERIOD_MS);
-
-  /* Init wifi driver */
-  lv_label_set_text(notif_panel_title, "Init: WiFi");
-  lv_label_set_text(notif_msg, "Getting wifi status...");
-  wifi_init_sta();
-
-  /* Wait for wifistatus connected/disconnected */
-  bits = xEventGroupWaitBits(systemStatusEventGroup, WIFI_FAIL_BIT | WIFI_CONNECTED_BIT, pdTRUE, pdFALSE, 5000 / portTICK_PERIOD_MS);
-  if (bits & WIFI_CONNECTED_BIT)
-  {
-    lv_label_set_text_fmt(notif_msg, "Wifi status: %s", "Connected");
-  }
-  else if (bits & WIFI_FAIL_BIT)
-  {
-    lv_label_set_text_fmt(notif_msg, "Wifi status: %s", "Not connected");
-  }
-  else
-  {
-    lv_label_set_text_fmt(notif_msg, "Wifi status: %s", esp_err_to_name(wifi_connect_error));
-    __log(" Conn stat: %s ", esp_err_to_name(wifi_connect_error));
-  }
-
-  /* Delete the event group when it's no longer needed  */
-  // vEventGroupDelete(systemStatusEventGroup);
-
-  vTaskDelay(1200 / portTICK_PERIOD_MS);
-
-  notif_panel_del();
+  /* init all peripherals */
+  system_initialization();
 
   /* config gpio for scn interrupt */
   gpioConfig();
@@ -214,6 +168,68 @@ static void init_sleep_timer()
   if (sleep_timer_handler != NULL)
   {
     xTimerStart(sleep_timer_handler, 0);
+  }
+}
+
+/* system init */
+static void system_initialization()
+{
+  /* Open com for reader, return false if reader is not connected */
+  bool stat = OpenComPort("COMX", 57600);
+  const char *bool_to_str;
+
+  /* Create notification panel to show initialization status*/
+  if (pdTRUE == xSemaphoreTake(xGuiSemaphore, portMAX_DELAY))
+  {
+    create_notif_panel("Init: reader", "", true);
+    xSemaphoreGive(xGuiSemaphore);
+  }
+  lv_label_set_text_fmt(notif_msg, "Com status: %s\nBaudrate: 57600", bool_to_str = (stat) ? "OK" : "FAILED");
+
+  /* Init reader */
+  stat = GetSettings(&ri);
+  system_status.reader = stat;
+  lv_label_set_text_fmt(notif_msg, "Reader status: %s", bool_to_str = (stat) ? "OK" : "FAILED");
+  vTaskDelay(700 / portTICK_PERIOD_MS);
+
+  /* init sd card */
+  lv_label_set_text(notif_panel_title, "Init: SD card");
+  lv_label_set_text(notif_msg, "Getting sd status...");
+  initSD();
+  vTaskDelay(700 / portTICK_PERIOD_MS);
+  lv_label_set_text_fmt(notif_msg, "SD status: %s", esp_err_to_name(sd_card_error));
+  vTaskDelay(1000 / portTICK_PERIOD_MS);
+
+  /* Init wifi driver */
+  lv_label_set_text(notif_panel_title, "Init: WiFi");
+  lv_label_set_text(notif_msg, "Getting wifi status...");
+  wifi_init_sta();
+
+  /* Wait for wifistatus connected/disconnected */
+  bits = xEventGroupWaitBits(systemStatusEventGroup, WIFI_FAIL_BIT | WIFI_CONNECTED_BIT, pdTRUE, pdFALSE, 5000 / portTICK_PERIOD_MS);
+  if (bits & WIFI_CONNECTED_BIT)
+  {
+    lv_label_set_text_fmt(notif_msg, "Wifi status: %s", "Connected");
+  }
+  else if (bits & WIFI_FAIL_BIT)
+  {
+    lv_label_set_text_fmt(notif_msg, "Wifi status: %s", "Not connected");
+  }
+  else
+  {
+    lv_label_set_text_fmt(notif_msg, "Wifi status: %s", esp_err_to_name(wifi_connect_error));
+    __log(" Conn stat: %s ", esp_err_to_name(wifi_connect_error));
+  }
+
+  /* Delete the event group when it's no longer needed  */
+  // vEventGroupDelete(systemStatusEventGroup);
+
+  vTaskDelay(1200 / portTICK_PERIOD_MS);
+
+  if (pdTRUE == xSemaphoreTake(xGuiSemaphore, portMAX_DELAY))
+  {
+    notif_panel_del();
+    xSemaphoreGive(xGuiSemaphore);
   }
 }
 // MUTEX

@@ -98,6 +98,7 @@ extern "C"
 
     /* event cb */
     void ui_home_btn_cb(lv_event_t *event);
+    void ui_event_check_and_do_fw_update(lv_event_t *event);
 
     ////////////////////////////////////////////////////////////// WIFI TAB /////////////////////////////////////////////////////////
     extern lv_obj_t *ui_wifi_ssid_label;
