@@ -765,7 +765,7 @@ void create_notif_panel(const char *title, const char *msg, bool _spin)
         spin_flag = _spin;
         if (spin_flag == true)
         {
-            lv_obj_t *spinner = lv_spinner_create(notif_panel, 1000, 60);
+            lv_obj_t *spinner = lv_spinner_create(notif_panel, 1500, 60);
             lv_obj_set_height(spinner, 45);
             lv_obj_set_width(spinner, 45);
             lv_obj_align(spinner, LV_ALIGN_CENTER, 0, -8);

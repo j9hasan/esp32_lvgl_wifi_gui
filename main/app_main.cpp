@@ -13,9 +13,9 @@
 #define LV_TICK_PERIOD_MS 10
 SemaphoreHandle_t xGuiSemaphore;
 /* sleep timer */
-#define SLEEP_TIME_MINUTES 1
+#define SLEEP_TIME_MINUTES 20
 #define TIMER_INTERVAL_MS (SLEEP_TIME_MINUTES * 60 * 1000)
-uint32_t timer_interval = SLEEP_TIME_MINUTES * 20 * 1000;
+// uint32_t timer_interval = SLEEP_TIME_MINUTES * 20 * 1000;
 
 /* Prototypes */
 static void sleep_timer_callback(TimerHandle_t xTimer);
@@ -61,7 +61,7 @@ extern "C" void app_main()
 
   /* Create notification panel to show initialization status*/
   create_notif_panel("Init: reader", "", true);
-  lv_label_set_text_fmt(notif_msg, "COM status: %s", bool_to_str = (stat) ? "OK" : "FAILED");
+  lv_label_set_text_fmt(notif_msg, "Com status: %s\nBaudrate: 57600", bool_to_str = (stat) ? "OK" : "FAILED");
 
   /* Init reader */
   stat = GetSettings(&ri);
@@ -199,12 +199,12 @@ void gpioConfig()
 static void sleep_timer_callback(TimerHandle_t xTimer)
 {
   // Set GPIO 21 low
-  gpio_set_level(GPIO_NUM_21, 0);
+  // gpio_set_level(GPIO_NUM_21, 0);
   __log("Going to light sleep after %u minutes.", SLEEP_TIME_MINUTES);
   // xTimerChangePeriod(xTimer, pdMS_TO_TICKS(timer_interval), 100);
-  esp_light_sleep_start();
-  // esp_deep_sleep_start();
-  gpio_set_level(GPIO_NUM_21, 1);
+  // esp_light_sleep_start();
+  esp_deep_sleep_start();
+  // gpio_set_level(GPIO_NUM_21, 1);
 }
 
 static void init_sleep_timer()
@@ -219,28 +219,11 @@ static void init_sleep_timer()
 // MUTEX
 /*
 
-
-        if (xSemaphoreTake(xGuiSemaphore, pdMS_TO_TICKS(100)) == pdTRUE)
-        {
-            __log( "MUTEX GOT");
-
-            __log( "WIFI not connected.");
-            xSemaphoreGive(xGuiSemaphore);
-            vTaskDelay(1000 / portTICK_PERIOD_MS);
-            if (xSemaphoreTake(xGuiSemaphore, pdMS_TO_TICKS(100)) == pdTRUE)
-            {
-
-                xSemaphoreGive(xGuiSemaphore);
-            }
-            else
-            {
-                ESP_LOGE(TAG, "Failed to acquire mutex");
-            }
-        }
-        else
-        {
-            ESP_LOGE(TAG, "Failed to acquire mutex");
-        }
+    if (pdTRUE == xSemaphoreTake(xGuiSemaphore, portMAX_DELAY))
+    {
+      lv_task_handler();
+      xSemaphoreGive(xGuiSemaphore);
+    }
 
 
 */

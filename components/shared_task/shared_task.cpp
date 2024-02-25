@@ -10,7 +10,12 @@ static const char *TAG = "shared task";
 TaskHandle_t RFID_TASK_HANDLE = NULL;
 void reader_info_fetching_task(void *pVparameters)
 {
-    create_notif_panel("READER", "Fetching data, please wait", true);
+
+    if (pdTRUE == xSemaphoreTake(xGuiSemaphore, portMAX_DELAY))
+    {
+        create_notif_panel("READER", "Fetching data, please wait", true);
+        xSemaphoreGive(xGuiSemaphore);
+    }
     vTaskDelay(300 / portTICK_PERIOD_MS);
     GetSettings(&ri);
 
@@ -35,20 +40,25 @@ void reader_info_fetching_task(void *pVparameters)
         lv_obj_clear_state(ui_beepon_switch, LV_STATE_CHECKED);
 
     /* LOG */
-    __log( "device_id: %s", intToString(littleEndianValue));
-    __log( "VersionInfo: %s", charArrayToString(ri.VersionInfo, 2));
-    __log( "ScanTime: %s", unsignedCharToString(ri.ScanTime));
-    __log( "Power: %s", unsignedCharToString(ri.Power));
-    __log( "Antenna: %s", unsignedCharToString(ri.Antenna));
-    __log( "Protocol: %s", unsignedCharToString(ri.Protocol));
-    __log( "MinFreq: %s", intToString(ri.MinFreq));
-    __log( "MaxFreq: %s", intToString(ri.MaxFreq));
-    __log( "BeepOn: %s", unsignedCharToString(ri.BeepOn));
+    __log("device_id: %s", intToString(littleEndianValue));
+    __log("VersionInfo: %s", charArrayToString(ri.VersionInfo, 2));
+    __log("ScanTime: %s", unsignedCharToString(ri.ScanTime));
+    __log("Power: %s", unsignedCharToString(ri.Power));
+    __log("Antenna: %s", unsignedCharToString(ri.Antenna));
+    __log("Protocol: %s", unsignedCharToString(ri.Protocol));
+    __log("MinFreq: %s", intToString(ri.MinFreq));
+    __log("MaxFreq: %s", intToString(ri.MaxFreq));
+    __log("BeepOn: %s", unsignedCharToString(ri.BeepOn));
 
     notif_msg_update("Done");
     vTaskDelay(300 / portTICK_PERIOD_MS);
     system_status.reader_data_fetched = true;
-    notif_panel_del();
+
+    if (pdTRUE == xSemaphoreTake(xGuiSemaphore, portMAX_DELAY))
+    {
+        notif_panel_del();
+        xSemaphoreGive(xGuiSemaphore);
+    }
 
     /* releasing write button  */
     lv_obj_add_flag(ui_reader_info_write, LV_OBJ_FLAG_CLICKABLE);
@@ -61,7 +71,12 @@ TaskHandle_t READER_WRITE_TASK_HANDLE = NULL;
 
 void reader_info_write(void *pVparameters)
 {
-    create_notif_panel("READER", "Writing data, please wait", true);
+    if (pdTRUE == xSemaphoreTake(xGuiSemaphore, portMAX_DELAY))
+    {
+        create_notif_panel("READER", "Writing data, please wait", true);
+        xSemaphoreGive(xGuiSemaphore);
+    }
+
     vTaskDelay(300 / portTICK_PERIOD_MS);
 
     char rfid_band_dd[20] = {0};
@@ -97,7 +112,12 @@ void reader_info_write(void *pVparameters)
     vTaskDelay(100 / portTICK_PERIOD_MS);
 
     /* update rfid info tab */
-    notif_panel_del();
+
+    if (pdTRUE == xSemaphoreTake(xGuiSemaphore, portMAX_DELAY))
+    {
+        notif_panel_del();
+        xSemaphoreGive(xGuiSemaphore);
+    }
     vTaskDelay(10 / portTICK_PERIOD_MS);
     update_rfid_tab();
 

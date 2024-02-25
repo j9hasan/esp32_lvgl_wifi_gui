@@ -48,6 +48,7 @@ void mem_screen(lv_event_t *e)
 				__log("tid found\n");
 				tidString = bytes2hex(tid, tidlen);
 				GetTagInfo(tid, &ti);
+
 				/*tid found, populate ui*/
 				lv_label_set_text(ui_chip_type_label, ti.chip);
 				lv_label_set_text(ui_epc_size_label, intToString(ti.epclen));
@@ -55,7 +56,8 @@ void mem_screen(lv_event_t *e)
 				lv_label_set_text(ui_usr_size_label, intToString(ti.userlen));
 				uint16_t totalmem = (ti.epclen) + (ti.userlen) + ti.tidlen + (ti.pwdlen * 2) + 4;
 				lv_label_set_text(ui_tot_mem_label, intToString(totalmem));
-				/*read EPC & TID*/
+
+				/*Wtie EPC & TID in UI*/
 				std::string originalString(epcFromScan);
 				std::string originalString_(tidString);
 				const size_t substringSize = 4;
@@ -71,11 +73,13 @@ void mem_screen(lv_event_t *e)
 					// memset(substrings, 0x00, sizeof(substrings));
 					// memset(substrings_, 0x00, sizeof(substrings_));
 				}
+				__log("usrlen : %d", ti.userlen);
 				__log("usrlen/2 : %d", ti.userlen);
+
 				/*SET USER COL*/
 				if ((ti.userlen / 2) < 8)
 				{
-					printf("usrlen<8\n");
+					__log("usrlen<8\n");
 					lv_table_set_row_cnt(tag_data_table, 2 + 1);
 					lv_table_set_cell_value(tag_data_table, 2 + 1, 0, "USR(7)");
 				}
