@@ -7,8 +7,39 @@
 lv_style_t btn_style;
 lv_style_t btn_label_style;
 
+/* glob resporces */
+lv_obj_t *tabview;
+// wifi
+lv_obj_t *ui_setupScreen;
+lv_obj_t *ui_wifi_ssid_label;
+lv_obj_t *ui_wifi_ssid_dd;
+lv_obj_t *ui_wifi_pass_ta;
+lv_obj_t *ui_wifi_conn_btn;
+lv_obj_t *ui_wifi_scan_btn;
+
+// reader
+lv_obj_t *ui_bana_dd;
+lv_obj_t *ui_baud_dd;
+lv_obj_t *ui_power_txtarea;
+lv_obj_t *ui_scantime_txtarea;
+lv_obj_t *ui_beepon_switch;
+lv_obj_t *ui_reader_info_write;
+lv_obj_t *ui_device_id_labelx;
+lv_obj_t *ui_version_labelx;
+lv_obj_t *ui_protocol_labelx;
+lv_obj_t *ui_antenna_labelx;
+lv_obj_t *ui_maxf_labelx;
+lv_obj_t *ui_minf_labelx;
 void ui_setupScreen_screen_init(void)
 {
+    /* local resources */
+    lv_obj_t *ui_wifi_pass_label;
+    lv_obj_t *ui_wifi_conn_btn_label;
+    lv_obj_t *ui_wifi_scan_btn_label;
+    lv_obj_t *ui_wifi_tab_label;
+    lv_obj_t *ui_wifi_save_checkbox;
+    lv_obj_t *ui_wifi_setup;
+
     __log("ui_setupScreen_screen_init()");
     uint16_t btn_radius = 8;
     lv_obj_t *label;
@@ -17,7 +48,7 @@ void ui_setupScreen_screen_init(void)
 
     ui_setupScreen = lv_obj_create(NULL);
 
-    tabview = lv_tabview_create(ui_setupScreen, LV_DIR_TOP, 30);
+    tabview = lv_tabview_create(ui_setupScreen, LV_DIR_TOP, 40);
 
     /*Add 3 tabs (the tabs are page (lv_page) and can be scrolled*/
     lv_obj_t *tab1 = lv_tabview_add_tab(tabview, "Wifi");
@@ -258,7 +289,7 @@ void ui_setupScreen_screen_init(void)
     ui_wifi_setup = lv_label_create(tab1);
     lv_obj_set_width(ui_wifi_setup, LV_SIZE_CONTENT);  /// 1
     lv_obj_set_height(ui_wifi_setup, LV_SIZE_CONTENT); /// 1
-    lv_obj_set_x(ui_wifi_setup, -112);
+    lv_obj_set_x(ui_wifi_setup, -79);
     lv_obj_set_y(ui_wifi_setup, -82);
     lv_obj_set_align(ui_wifi_setup, LV_ALIGN_CENTER);
     lv_label_set_text(ui_wifi_setup, "WiFi Setup");
@@ -267,7 +298,7 @@ void ui_setupScreen_screen_init(void)
     lv_dropdown_set_options(ui_wifi_ssid_dd, "SSID");
     lv_obj_set_width(ui_wifi_ssid_dd, 150);
     lv_obj_set_height(ui_wifi_ssid_dd, 40);
-    lv_obj_set_x(ui_wifi_ssid_dd, -76);
+    lv_obj_set_x(ui_wifi_ssid_dd, -79);
     lv_obj_set_y(ui_wifi_ssid_dd, -48);
     lv_obj_set_align(ui_wifi_ssid_dd, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_wifi_ssid_dd, LV_OBJ_FLAG_SCROLL_ON_FOCUS); /// Flags
@@ -288,8 +319,8 @@ void ui_setupScreen_screen_init(void)
     ui_wifi_pass_ta = lv_textarea_create(tab1);
     lv_obj_set_width(ui_wifi_pass_ta, 150);
     lv_obj_set_height(ui_wifi_pass_ta, 40);
-    lv_obj_set_x(ui_wifi_pass_ta, -76);
-    lv_obj_set_y(ui_wifi_pass_ta, 0);
+    lv_obj_set_x(ui_wifi_pass_ta, 76);
+    lv_obj_set_y(ui_wifi_pass_ta, -48);
     lv_obj_set_align(ui_wifi_pass_ta, LV_ALIGN_CENTER);
     lv_textarea_set_placeholder_text(ui_wifi_pass_ta, "Password");
     lv_obj_clear_flag(ui_wifi_pass_ta, LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM |
@@ -300,25 +331,6 @@ void ui_setupScreen_screen_init(void)
     lv_obj_set_style_border_opa(ui_wifi_pass_ta, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_width(ui_wifi_pass_ta, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_side(ui_wifi_pass_ta, LV_BORDER_SIDE_FULL, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_av_network_container = lv_obj_create(tab1);
-    lv_obj_remove_style_all(ui_av_network_container);
-    lv_obj_set_width(ui_av_network_container, 136);
-    lv_obj_set_height(ui_av_network_container, 152);
-    lv_obj_set_x(ui_av_network_container, 79);
-    lv_obj_set_y(ui_av_network_container, 10);
-    lv_obj_set_align(ui_av_network_container, LV_ALIGN_CENTER);
-    lv_obj_clear_flag(ui_av_network_container, LV_OBJ_FLAG_SCROLLABLE); /// Flags
-    lv_obj_set_style_bg_color(ui_av_network_container, lv_color_hex(0xDFDEDE), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_av_network_container, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_available_network_label = lv_label_create(tab1);
-    lv_obj_set_width(ui_available_network_label, LV_SIZE_CONTENT);  /// 1
-    lv_obj_set_height(ui_available_network_label, LV_SIZE_CONTENT); /// 1
-    lv_obj_set_x(ui_available_network_label, 78);
-    lv_obj_set_y(ui_available_network_label, -82);
-    lv_obj_set_align(ui_available_network_label, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_available_network_label, "Available Networks");
 
     /* button style */
     lv_style_init(&btn_style);
@@ -339,8 +351,8 @@ void ui_setupScreen_screen_init(void)
     ui_wifi_scan_btn = lv_btn_create(tab1);
     lv_obj_set_width(ui_wifi_scan_btn, 45);
     lv_obj_set_height(ui_wifi_scan_btn, 25);
-    lv_obj_set_x(ui_wifi_scan_btn, -107);
-    lv_obj_set_y(ui_wifi_scan_btn, 44);
+    lv_obj_set_x(ui_wifi_scan_btn, 28);
+    lv_obj_set_y(ui_wifi_scan_btn, -5);
     lv_obj_set_align(ui_wifi_scan_btn, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_wifi_scan_btn, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
     lv_obj_clear_flag(ui_wifi_scan_btn, LV_OBJ_FLAG_SCROLLABLE);
@@ -358,8 +370,8 @@ void ui_setupScreen_screen_init(void)
     ui_wifi_conn_btn = lv_btn_create(tab1);
     lv_obj_set_width(ui_wifi_conn_btn, 45);
     lv_obj_set_height(ui_wifi_conn_btn, 25);
-    lv_obj_set_x(ui_wifi_conn_btn, -41);
-    lv_obj_set_y(ui_wifi_conn_btn, 44);
+    lv_obj_set_x(ui_wifi_conn_btn, 96);
+    lv_obj_set_y(ui_wifi_conn_btn, -5);
     lv_obj_set_align(ui_wifi_conn_btn, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_wifi_conn_btn, LV_OBJ_FLAG_SCROLL_ON_FOCUS); /// Flags
     lv_obj_clear_flag(ui_wifi_conn_btn, LV_OBJ_FLAG_SCROLLABLE);    /// Flags
@@ -378,8 +390,8 @@ void ui_setupScreen_screen_init(void)
     lv_checkbox_set_text(ui_wifi_save_checkbox, "Save Network");
     lv_obj_set_width(ui_wifi_save_checkbox, LV_SIZE_CONTENT);  /// 1
     lv_obj_set_height(ui_wifi_save_checkbox, LV_SIZE_CONTENT); /// 1
-    lv_obj_set_x(ui_wifi_save_checkbox, -65);
-    lv_obj_set_y(ui_wifi_save_checkbox, 75);
+    lv_obj_set_x(ui_wifi_save_checkbox, -73);
+    lv_obj_set_y(ui_wifi_save_checkbox, -5);
     lv_obj_set_align(ui_wifi_save_checkbox, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_wifi_save_checkbox, LV_OBJ_FLAG_SCROLL_ON_FOCUS); /// Flags
 

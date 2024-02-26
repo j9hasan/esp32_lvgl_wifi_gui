@@ -17,8 +17,6 @@ lv_obj_t * ui_tab1;
 lv_obj_t * ui_wifi_setup;
 lv_obj_t * ui_wifi_ssid_dd;
 lv_obj_t * ui_wifi_pass_ta;
-lv_obj_t * ui_av_network_container;
-lv_obj_t * ui_available_network_label;
 lv_obj_t * ui_wifi_scan_btn;
 lv_obj_t * ui_wifi_scan_btn_label;
 lv_obj_t * ui_wifi_conn_btn;
@@ -40,7 +38,44 @@ lv_obj_t * ui_n_1;
 lv_obj_t * ui_i_1;
 lv_obj_t * ui_i_2;
 lv_obj_t * ui_i_3;
-lv_obj_t * ui_n_2;
+lv_obj_t * ui_Button1;
+
+
+// SCREEN: ui_Screen1
+void ui_Screen1_screen_init(void);
+lv_obj_t * ui_Screen1;
+lv_obj_t * ui_ui_tag_auth_panel;
+lv_obj_t * ui_ui_tap_pass_ascii_label;
+lv_obj_t * ui_ui_tap_pass_ascii_ta;
+lv_obj_t * ui_ui_tap_pass_hex_label;
+lv_obj_t * ui_ui_tap_pass_hex_ta;
+lv_obj_t * ui_ui_tap_write;
+lv_obj_t * ui_Label4;
+lv_obj_t * ui_ui_tap_close;
+lv_obj_t * ui_ui_tap_close_label;
+
+
+// SCREEN: ui_Screen2
+void ui_Screen2_screen_init(void);
+lv_obj_t * ui_Screen2;
+lv_obj_t * ui_Panel2;
+lv_obj_t * ui_Button4;
+lv_obj_t * ui_Label5;
+lv_obj_t * ui_TextArea2;
+lv_obj_t * ui_Button2;
+
+
+// SCREEN: ui_Screen3
+void ui_Screen3_screen_init(void);
+lv_obj_t * ui_Screen3;
+lv_obj_t * ui_Panel3;
+lv_obj_t * ui_Button5;
+lv_obj_t * ui_TextArea3;
+lv_obj_t * ui_TextArea4;
+lv_obj_t * ui_tap_write;
+lv_obj_t * ui_Label7;
+lv_obj_t * ui_Label6;
+lv_obj_t * ui_Label1;
 lv_obj_t * ui____initial_actions0;
 
 ///////////////////// TEST LVGL SETTINGS ////////////////////
@@ -65,6 +100,9 @@ void ui_init(void)
     lv_disp_set_theme(dispp, theme);
     ui_setupScreen_screen_init();
     ui_notif_screen_init();
+    ui_Screen1_screen_init();
+    ui_Screen2_screen_init();
+    ui_Screen3_screen_init();
     ui____initial_actions0 = lv_obj_create(NULL);
     lv_disp_load_scr(ui_setupScreen);
 }

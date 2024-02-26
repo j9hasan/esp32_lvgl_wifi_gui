@@ -136,20 +136,15 @@ void update_rfid_tab()
 {
     if (RFID_TASK_HANDLE == NULL)
     {
-        if (system_status.reader)
-        {
-            xTaskCreatePinnedToCore(reader_info_fetching_task, "reader_info_fetching_task",
-                                    RFID_TASK_STACK_SIZE, NULL,
-                                    RFID_TASK_PRIORITY,
-                                    &RFID_TASK_HANDLE,
-                                    RFID_TASK_CORE);
-            ESP_LOGI("update_rfid_tab", "start fetching reader info.");
-        }
-        else
-        {
-            ESP_LOGI("update_rfid_tab", "reader not found.");
-        }
+
+        xTaskCreatePinnedToCore(reader_info_fetching_task, "reader_info_fetching_task",
+                                RFID_TASK_STACK_SIZE, NULL,
+                                RFID_TASK_PRIORITY,
+                                &RFID_TASK_HANDLE,
+                                RFID_TASK_CORE);
+        ESP_LOGI("update_rfid_tab", "start fetching reader info.");
     }
+
     else
     {
         ESP_LOGI("update_rfid_tab", "rfid info task already running");
@@ -158,6 +153,7 @@ void update_rfid_tab()
 
 #define FIRMWARE_UPGRADE_URL "http://192.168.0.105:8000/handheld.bin"
 #define OTA_RECV_TIMEOUT 5000
+#define KB_TO_BYTES 1024
 
 // extern const uint8_t server_cert_pem_start[] asm("_binary_ca_cert_pem_start");
 // extern const uint8_t server_cert_pem_end[] asm("_binary_ca_cert_pem_end");
@@ -248,7 +244,7 @@ void fw_update_task(void *pVparameters)
 
     esp_https_ota_config_t ota_config = {
         .http_config = &config,
-        .http_client_init_cb = _http_client_init_cb, // Register a callback to be invoked after esp_http_client is initialized
+        .http_client_init_cb = _http_client_init_cb,
     };
 
     esp_https_ota_handle_t https_ota_handle = NULL;
@@ -290,14 +286,16 @@ void fw_update_task(void *pVparameters)
         /* verify success, get image size */
         image_size = esp_https_ota_get_image_size(https_ota_handle) / 1000;
 
-        lv_label_set_text_fmt(ui_i_3, "App size %dKB", image_size);
+        lv_label_set_text_fmt(ui_i_3, "Remote fw size %d KB", image_size);
     }
 
-    TickType_t lastUpdateTime = 0;
     const TickType_t updateInterval = pdMS_TO_TICKS(1000);
 
     /* set download bar range */
     lv_bar_set_range(ui_b_1, 0, image_size);
+
+    uint32_t lastImgBytesRead = 0;
+    TickType_t lastUpdateTime = xTaskGetTickCount();
 
     while (1)
     {
@@ -307,21 +305,33 @@ void fw_update_task(void *pVparameters)
             break;
         }
 
-        uint32_t img_loaded = esp_https_ota_get_image_len_read(https_ota_handle) / 1000;
-        __log("Image bytes read: %d", img_loaded);
+        uint32_t img_loaded_bytes = esp_https_ota_get_image_len_read(https_ota_handle);
+        uint32_t img_loaded_kb = img_loaded_bytes / KB_TO_BYTES;
 
-        /* update gui every 1 sec to reduce cpu load */
         TickType_t currentTime = xTaskGetTickCount();
 
+        // update gui every 1 sec to reduce cpu load
         if ((currentTime - lastUpdateTime) >= updateInterval)
         {
-            lastUpdateTime = currentTime;
-            /* show and update bar value */
+            // Calculate increase in image bytes read
+            uint32_t img_bytes_increase = img_loaded_bytes - lastImgBytesRead;
+            lastImgBytesRead = img_loaded_bytes;
+
+            // Calculate KBps
+            __log("bytes inc %d", img_bytes_increase / 1024);
+
+            uint32_t KBps = img_bytes_increase / (KB_TO_BYTES);
+            __log("KBps: %d", KBps);
+            __log("Image bytes read: %d", img_loaded_kb);
+
+            // show and update bar value
             lv_obj_clear_flag(ui_b_1, LV_OBJ_FLAG_HIDDEN);
+            lv_bar_set_value(ui_b_1, img_loaded_kb, LV_ANIM_OFF);
 
-            lv_bar_set_value(ui_b_1, img_loaded, LV_ANIM_OFF);
+            // Update gui
+            lv_label_set_text_fmt(ui_n_1, "Image read: %d KB (%d KB/s)", img_loaded_kb, KBps);
 
-            lv_label_set_text_fmt(ui_n_1, "Image read: %d KB", img_loaded);
+            lastUpdateTime = currentTime;
         }
     }
 

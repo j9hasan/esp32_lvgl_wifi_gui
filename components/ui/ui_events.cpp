@@ -350,7 +350,7 @@ void set_scan_filter(lv_event_t *e)
 
 	if (filterOn)
 	{
-		const char *str = lv_textarea_get_text(ui_mainScrDataTextarea);
+		const char *str = lv_textarea_get_text(ui_fp_data_ta);
 		size_t str_len = strlen(str);
 		// Allocate memory for the array
 		unsigned char *maskData = (unsigned char *)malloc((str_len + 1) / 2);
@@ -373,7 +373,7 @@ void set_scan_filter(lv_event_t *e)
 		// __log( "\n");
 		size_t maskDataSize = (str_len + 1) / 2; // number of elements in the array
 		__log("Size of maskData: %zu", maskDataSize);
-		const char *maskOffset_ = lv_textarea_get_text(ui_mainScrOffsetTextarea);
+		const char *maskOffset_ = lv_textarea_get_text(ui_fp_offset_ta);
 		int maskOffset = atoi(maskOffset_);
 		__log("mask offset %d: data ", maskOffset);
 		if (SetFilter(maskOffset, maskDataSize, maskData))

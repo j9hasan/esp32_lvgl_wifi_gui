@@ -14,8 +14,8 @@ lv_obj_t *ui_filterSW;
 lv_obj_t *ui_agentButton;
 lv_obj_t *ui_filterBtnLbl;
 lv_obj_t *ui_mergeButtonLabel;
-lv_obj_t *ui_mainScrDataTextarea;
-lv_obj_t *ui_mainScrOffsetTextarea;
+lv_obj_t *ui_fp_data_ta;
+lv_obj_t *ui_fp_offset_ta;
 
 void ui_mainScreen_screen_init(void)
 {

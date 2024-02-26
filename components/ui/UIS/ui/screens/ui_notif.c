@@ -18,37 +18,36 @@ void ui_notif_screen_init(void)
     lv_obj_set_style_border_width(ui_Panel1, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_s_1 = lv_spinner_create(ui_Panel1, 1000, 90);
-    lv_obj_set_width(ui_s_1, 18);
-    lv_obj_set_height(ui_s_1, 18);
-    lv_obj_set_x(ui_s_1, -3);
-    lv_obj_set_y(ui_s_1, -3);
+    lv_obj_set_width(ui_s_1, 25);
+    lv_obj_set_height(ui_s_1, 25);
     lv_obj_clear_flag(ui_s_1, LV_OBJ_FLAG_CLICKABLE);      /// Flags
-    lv_obj_set_style_arc_width(ui_s_1, 3, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_arc_width(ui_s_1, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    lv_obj_set_style_arc_width(ui_s_1, 3, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_arc_width(ui_s_1, 5, LV_PART_INDICATOR | LV_STATE_DEFAULT);
 
     ui_t_1 = lv_label_create(ui_Panel1);
     lv_obj_set_width(ui_t_1, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_t_1, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_t_1, 19);
-    lv_obj_set_y(ui_t_1, 0);
+    lv_obj_set_x(ui_t_1, 29);
+    lv_obj_set_y(ui_t_1, 4);
     lv_label_set_text(ui_t_1, "FW update");
-    lv_obj_set_style_text_font(ui_t_1, &lv_font_montserrat_10, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_t_1, &lv_font_montserrat_12, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_b_1 = lv_bar_create(ui_Panel1);
     lv_bar_set_value(ui_b_1, 25, LV_ANIM_OFF);
     lv_bar_set_start_value(ui_b_1, 0, LV_ANIM_OFF);
-    lv_obj_set_width(ui_b_1, 162);
-    lv_obj_set_height(ui_b_1, 10);
+    lv_obj_set_width(ui_b_1, lv_pct(80));
+    lv_obj_set_height(ui_b_1, lv_pct(10));
     lv_obj_set_x(ui_b_1, 0);
-    lv_obj_set_y(ui_b_1, 44);
+    lv_obj_set_y(ui_b_1, 47);
     lv_obj_set_align(ui_b_1, LV_ALIGN_CENTER);
+    lv_obj_set_style_radius(ui_b_1, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_n_1 = lv_label_create(ui_Panel1);
     lv_obj_set_width(ui_n_1, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_n_1, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_n_1, 0);
-    lv_obj_set_y(ui_n_1, 12);
+    lv_obj_set_y(ui_n_1, 29);
     lv_obj_set_align(ui_n_1, LV_ALIGN_CENTER);
     lv_label_set_text(ui_n_1, "image downloaded: 360KB");
     lv_obj_set_style_text_font(ui_n_1, &lv_font_montserrat_10, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -57,7 +56,7 @@ void ui_notif_screen_init(void)
     lv_obj_set_width(ui_i_1, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_i_1, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_i_1, 0);
-    lv_obj_set_y(ui_i_1, -26);
+    lv_obj_set_y(ui_i_1, -16);
     lv_obj_set_align(ui_i_1, LV_ALIGN_CENTER);
     lv_label_set_text(ui_i_1, "Current fw v2.2.23");
     lv_obj_set_style_text_font(ui_i_1, &lv_font_montserrat_10, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -66,27 +65,25 @@ void ui_notif_screen_init(void)
     lv_obj_set_width(ui_i_2, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_i_2, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_i_2, 0);
-    lv_obj_set_y(ui_i_2, -13);
+    lv_obj_set_y(ui_i_2, -1);
     lv_obj_set_align(ui_i_2, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_i_2, "New fw v2.2.24");
+    lv_label_set_text(ui_i_2, "Remote fw v2.2.24");
     lv_obj_set_style_text_font(ui_i_2, &lv_font_montserrat_10, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_i_3 = lv_label_create(ui_Panel1);
     lv_obj_set_width(ui_i_3, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_i_3, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_i_3, 0);
-    lv_obj_set_y(ui_i_3, -1);
+    lv_obj_set_y(ui_i_3, 14);
     lv_obj_set_align(ui_i_3, LV_ALIGN_CENTER);
     lv_label_set_text(ui_i_3, "App size: ");
     lv_obj_set_style_text_font(ui_i_3, &lv_font_montserrat_10, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_n_2 = lv_label_create(ui_Panel1);
-    lv_obj_set_width(ui_n_2, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_n_2, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_n_2, 0);
-    lv_obj_set_y(ui_n_2, 27);
-    lv_obj_set_align(ui_n_2, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_n_2, "....");
-    lv_obj_set_style_text_font(ui_n_2, &lv_font_montserrat_10, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_Button1 = lv_btn_create(ui_Panel1);
+    lv_obj_set_width(ui_Button1, 25);
+    lv_obj_set_height(ui_Button1, 25);
+    lv_obj_set_align(ui_Button1, LV_ALIGN_TOP_RIGHT);
+    lv_obj_add_flag(ui_Button1, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_clear_flag(ui_Button1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
 }

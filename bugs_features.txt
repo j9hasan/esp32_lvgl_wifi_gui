@@ -2,12 +2,15 @@
         DESC                                                            STATUS
 --------------------------------------------------------------------------------------------------------
 1.wifi not connected ERR                                                fixed
-2.notif panel closse btn click crash [MAJOR]
+2.PANEL CLOSE BTN CRASH [MAJOR]
 3.j4210 , scantime , scamtime *100 show, /100 write
 4.make fillter = false when user close
   filter panel without writing any data
 5.panic after going setuup screen 2nd time [MAJOR]                      fixed
 6.taginfo not coming    [MAJOR]
+7.if kb stays open in one screen and i go to another and try to
+  access kb it doesnot open.
+8.ASCII ta not taking any small alphabet
 
 
 

@@ -30,7 +30,7 @@ void ui_memScreen_screen_init(void)
 
     static lv_style_t screen_style;
     lv_style_init(&screen_style);
-    lv_style_set_bg_color(&screen_style, lv_color_hex(0xB4E2FF));
+    lv_style_set_bg_color(&screen_style, lv_color_hex(0xEEECEC));
     lv_style_set_text_font(&screen_style, &lv_font_montserrat_10);
 
     ui_memScreen = lv_obj_create(NULL);

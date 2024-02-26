@@ -40,8 +40,8 @@ extern "C"
     extern lv_obj_t *ui_filterBtnLbl;
     extern lv_obj_t *ui_mergeButtonLabel;
     /* filter panel global objects */
-    extern lv_obj_t *ui_mainScrDataTextarea;
-    extern lv_obj_t *ui_mainScrOffsetTextarea;
+    extern lv_obj_t *ui_fp_data_ta;
+    extern lv_obj_t *ui_fp_offset_ta;
 
     /* functions */
     void makeFilterPanel();
